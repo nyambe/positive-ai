@@ -18,7 +18,15 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-03-01',
 
   // https://hub.nuxt.com/docs/getting-started/installation#options
-  hub: {},
+  nitro: {
+    experimental: {
+      websocket: true
+    }
+  },
+  hub: {
+    workers: true,
+    ai: true
+  },
 
   // Development config
   eslint: {
