@@ -169,7 +169,7 @@ onUnmounted(() => {
     <div class="max-w-2xl mx-auto">
       <div class="flex items-center justify-center mb-8">
         <h1 class="text-3xl font-bold text-gray-800">
-          Positive Chat
+          Chat Positivo
         </h1>
         <div class="ml-4 flex items-center space-x-4">
           <div class="flex items-center">
@@ -183,12 +183,12 @@ onUnmounted(() => {
               }"
             ></div>
             <span class="text-sm text-gray-600">
-              {{ connectionStatus }}
+              {{ connectionStatus === 'Connected' ? 'Conectado' : connectionStatus === 'Disconnected' ? 'Desconectado' : connectionStatus === 'Connecting' ? 'Conectando' : 'Error' }}
             </span>
           </div>
           <div v-if="connectedUsers > 0" class="flex items-center">
             <span class="text-sm text-gray-600">
-              👥 {{ connectedUsers }} user{{ connectedUsers !== 1 ? 's' : '' }} online
+              👥 {{ connectedUsers }} usuario{{ connectedUsers !== 1 ? 's' : '' }} conectado{{ connectedUsers !== 1 ? 's' : '' }}
             </span>
           </div>
         </div>
@@ -198,14 +198,24 @@ onUnmounted(() => {
       <div v-if="!username" class="mb-6">
         <UCard>
           <div class="space-y-4">
-            <h2 class="text-xl font-semibold">Join the chat</h2>
-            <UInput
-              v-model="usernameInput"
-              placeholder="Enter your name and press Enter"
-              size="lg"
-              @keyup.enter="joinChat"
-              autofocus
-            />
+            <h2 class="text-xl font-semibold">Únete al chat</h2>
+            <div class="flex gap-2">
+              <UInput
+                v-model="usernameInput"
+                placeholder="Introduce tu nombre"
+                size="lg"
+                class="flex-1"
+                @keyup.enter="joinChat"
+                autofocus
+              />
+              <UButton
+                @click="joinChat"
+                :disabled="!usernameInput.trim()"
+                size="lg"
+              >
+                Unirse
+              </UButton>
+            </div>
           </div>
         </UCard>
       </div>
@@ -232,7 +242,7 @@ onUnmounted(() => {
               </p>
             </div>
             <div v-if="messages.length === 0" class="text-center text-gray-500 py-8">
-              No messages yet. Start the conversation!
+              Aún no hay mensajes. ¡Empieza la conversación!
             </div>
           </div>
         </UCard>
@@ -241,7 +251,7 @@ onUnmounted(() => {
         <div class="flex gap-2">
           <UInput
             v-model="currentMessage"
-            placeholder="Type your message..."
+            placeholder="Escribe tu mensaje..."
             class="flex-1"
             @keyup.enter="sendMessage"
           />
@@ -249,14 +259,14 @@ onUnmounted(() => {
             @click="sendMessage" 
             :disabled="!currentMessage.trim() || connectionStatus !== 'Connected'"
           >
-            Send
+            Enviar
           </UButton>
         </div>
 
         <!-- User info -->
         <div class="text-center">
           <span class="text-sm text-gray-600">
-            Chatting as <strong>{{ username }}</strong>
+            Chateando como <strong>{{ username }}</strong>
           </span>
           <UButton
             variant="ghost"
@@ -264,7 +274,7 @@ onUnmounted(() => {
             @click="changeName"
             class="ml-2"
           >
-            Change name
+            Cambiar nombre
           </UButton>
         </div>
       </div>
