@@ -39,15 +39,21 @@ Original message: "${data.message}"`
         console.log('Original:', data.message)
         console.log('Transformed:', aiResult.response)
         
-        // Broadcast transformed message to all users
-        peer.publish('chat-channel', {
+        // Create the transformed message
+        const chatMessage = {
           type: 'message',
           id: Date.now().toString(),
           username: data.username,
           originalText: data.message,
           transformedText: aiResult.response || data.message,
           timestamp: new Date().toISOString()
-        })
+        }
+        
+        // Broadcast transformed message to all users
+        peer.publish('chat-channel', chatMessage)
+        
+        // Also send to the sender so they see their own message
+        peer.send(JSON.stringify(chatMessage))
         
         console.log('📤 CHAT: Transformed message published successfully')
       }
