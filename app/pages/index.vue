@@ -8,113 +8,91 @@ interface Message {
 }
 
 const username = ref('')
+const usernameInput = ref('')
 const currentMessage = ref('')
 const messages = ref<Message[]>([])
-const connectionStatus = ref<'connecting' | 'connected' | 'disconnected'>('disconnected')
-let ws: WebSocket | null = null
+const isLoading = ref(false)
 
 // Load username from localStorage
 onMounted(() => {
   if (typeof window !== 'undefined') {
     username.value = localStorage.getItem('chat-username') || ''
-    connectWebSocket()
+    usernameInput.value = username.value
   }
 })
 
-// Save username when it changes
+// Save username when it changes (only when actually set, not during typing)
 watch(username, (newUsername) => {
-  if (typeof window !== 'undefined') {
+  if (typeof window !== 'undefined' && newUsername) {
     localStorage.setItem('chat-username', newUsername)
   }
 })
 
-const connectWebSocket = () => {
-  if (typeof window === 'undefined') return
-  
-  connectionStatus.value = 'connecting'
-  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-  const wsUrl = `${protocol}//${window.location.host}/api/chat`
-  
-  ws = new WebSocket(wsUrl)
-  
-  ws.onopen = () => {
-    connectionStatus.value = 'connected'
-    // Request message history
-    ws?.send(JSON.stringify({ type: 'join' }))
-  }
-  
-  ws.onmessage = (event) => {
-    const data = JSON.parse(event.data)
-    
-    if (data.type === 'history') {
-      messages.value = data.messages.map((msg: any) => ({
-        ...msg,
-        timestamp: msg.timestamp
-      }))
-    } else if (data.type === 'newMessage') {
-      messages.value.push(data.message)
-      // Auto-scroll to bottom
-      nextTick(() => {
-        const messagesContainer = document.querySelector('.messages-container')
-        if (messagesContainer) {
-          messagesContainer.scrollTop = messagesContainer.scrollHeight
-        }
-      })
-    } else if (data.type === 'error') {
-      console.error('WebSocket error:', data.message)
-    }
-  }
-  
-  ws.onclose = () => {
-    connectionStatus.value = 'disconnected'
-    // Try to reconnect after 3 seconds
-    setTimeout(connectWebSocket, 3000)
-  }
-  
-  ws.onerror = (error) => {
-    console.error('WebSocket error:', error)
-    connectionStatus.value = 'disconnected'
-  }
-}
-
 const sendMessage = async () => {
-  if (!currentMessage.value.trim() || !username.value.trim() || connectionStatus.value !== 'connected' || !ws) return
+  if (!currentMessage.value.trim() || !username.value.trim() || isLoading.value) return
   
-  ws.send(JSON.stringify({
-    type: 'message',
-    username: username.value,
-    text: currentMessage.value
-  }))
+  isLoading.value = true
+  console.log('📤 Sending message:', currentMessage.value)
   
-  currentMessage.value = ''
+  try {
+    // Call the AI transformation API
+    const response = await $fetch('/api/text', {
+      method: 'POST',
+      body: { message: currentMessage.value }
+    })
+    
+    console.log('🤖 AI response:', response)
+    
+    // Add message to local messages array
+    const message: Message = {
+      id: Date.now().toString(),
+      username: username.value,
+      originalText: currentMessage.value,
+      transformedText: response.transformed,
+      timestamp: new Date().toISOString()
+    }
+    
+    messages.value.push(message)
+    currentMessage.value = ''
+    
+    // Auto-scroll to bottom
+    nextTick(() => {
+      const messagesContainer = document.querySelector('.messages-container')
+      if (messagesContainer) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight
+      }
+    })
+    
+  } catch (error) {
+    console.error('❌ Failed to send message:', error)
+  } finally {
+    isLoading.value = false
+  }
 }
 
-onUnmounted(() => {
-  ws?.close()
-})
+const joinChat = () => {
+  if (usernameInput.value.trim()) {
+    username.value = usernameInput.value.trim()
+    console.log('👋 User joined:', username.value)
+  }
+}
+
+const changeName = () => {
+  username.value = ''
+  usernameInput.value = ''
+  messages.value = []
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('chat-username')
+  }
+}
 </script>
 
 <template>
   <div class="min-h-screen bg-gray-50 p-4">
     <div class="max-w-2xl mx-auto">
-      <div class="flex items-center justify-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-800">
-          Positive Chat
-        </h1>
-        <div class="ml-4 flex items-center">
-          <div 
-            class="w-3 h-3 rounded-full mr-2"
-            :class="{
-              'bg-green-500': connectionStatus === 'connected',
-              'bg-yellow-500': connectionStatus === 'connecting', 
-              'bg-red-500': connectionStatus === 'disconnected'
-            }"
-          ></div>
-          <span class="text-sm text-gray-600">
-            {{ connectionStatus }}
-          </span>
-        </div>
-      </div>
+      <h1 class="text-3xl font-bold text-center mb-8 text-gray-800">
+        Positive Chat (Single User Demo)
+      </h1>
       
       <!-- Username input -->
       <div v-if="!username" class="mb-6">
@@ -122,10 +100,11 @@ onUnmounted(() => {
           <div class="space-y-4">
             <h2 class="text-xl font-semibold">Join the chat</h2>
             <UInput
-              v-model="username"
-              placeholder="Enter your name"
+              v-model="usernameInput"
+              placeholder="Enter your name and press Enter"
               size="lg"
-              @keyup.enter="() => {}"
+              @keyup.enter="joinChat"
+              autofocus
             />
           </div>
         </UCard>
@@ -148,8 +127,8 @@ onUnmounted(() => {
                 </span>
               </div>
               <p class="text-gray-800">{{ message.transformedText }}</p>
-              <p v-if="message.originalText !== message.transformedText" class="text-xs text-gray-500 mt-1">
-                Original: {{ message.originalText }}
+              <p v-if="message.originalText !== message.transformedText" class="text-xs text-gray-500 mt-1 italic">
+                Original: "{{ message.originalText }}"
               </p>
             </div>
             <div v-if="messages.length === 0" class="text-center text-gray-500 py-8">
@@ -168,9 +147,10 @@ onUnmounted(() => {
           />
           <UButton 
             @click="sendMessage" 
-            :disabled="!currentMessage.trim() || connectionStatus !== 'connected'"
+            :disabled="!currentMessage.trim() || isLoading"
+            :loading="isLoading"
           >
-            Send
+            {{ isLoading ? 'Processing...' : 'Send' }}
           </UButton>
         </div>
 
@@ -182,7 +162,7 @@ onUnmounted(() => {
           <UButton
             variant="ghost"
             size="xs"
-            @click="username = ''"
+            @click="changeName"
             class="ml-2"
           >
             Change name
