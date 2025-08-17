@@ -36,7 +36,7 @@ const sendMessage = async () => {
   
   try {
     // Call the AI transformation API
-    const response = await $fetch('/api/text', {
+    const response = await $fetch<{ original: string; transformed: string }>('/api/text', {
       method: 'POST',
       body: { message: currentMessage.value }
     })
