@@ -1,13 +1,19 @@
 {
+  "permissions": {
+    "allow": [
+      "mcp__nuxt-docs__search_nuxt_docs",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_take_screenshot",
+      "mcp__playwright__browser_type",
+      "mcp__playwright__browser_snapshot",
+      "mcp__playwright__browser_click",
+      "mcp__playwright__browser_console_messages"
+    ]
+  },
   "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "playwright",
     "sequential-thinking",
     "nuxt-docs"
-  ],
-  "permissions": {
-    "allow": [
-      "mcp__nuxt-docs__search_nuxt_docs"
-    ]
-  }
+  ]
 }
