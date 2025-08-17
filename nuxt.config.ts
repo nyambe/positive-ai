@@ -2,6 +2,7 @@
 export default defineNuxtConfig({
   // https://nuxt.com/modules
   modules: ['@nuxthub/core', '@nuxt/eslint', '@nuxt/scripts', '@nuxt/ui', '@vueuse/nuxt'],
+  css: ['~/assets/css/main.css'],
 
   // https://devtools.nuxt.com
   devtools: { enabled: true },

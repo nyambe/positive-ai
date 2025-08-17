@@ -19,6 +19,7 @@
     "@unhead/vue": "^2.0.14",
     "@vueuse/nuxt": "13.6.0",
     "nuxt": "^3.17.5",
+    "tailwindcss": "^4.1.12",
     "vue": "^3.5.16",
     "vue-router": "^4.5.1"
   },
