@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// Types matching your WebSocket handler
 interface Message {
   id: string
   username: string
@@ -7,11 +8,19 @@ interface Message {
   timestamp: string
 }
 
+interface OutgoingMessage {
+  type: 'message'
+  username: string
+  message: string
+  timestamp?: string
+}
+
 const username = ref('')
 const usernameInput = ref('')
 const currentMessage = ref('')
 const messages = ref<Message[]>([])
-const isLoading = ref(false)
+const connectedUsers = ref(0)
+const connectionStatus = ref('Disconnected')
 
 // Load username from localStorage
 onMounted(() => {
@@ -28,45 +37,101 @@ watch(username, (newUsername) => {
   }
 })
 
-const sendMessage = async () => {
-  if (!currentMessage.value.trim() || !username.value.trim() || isLoading.value) return
+// WebSocket connection using your working pattern
+const { send, open, close } = useWebSocket('/ws/chat', {
+  immediate: false,
+  onConnected: () => {
+    console.log('✅ WebSocket CONNECTED to chat')
+    connectionStatus.value = 'Connected'
+  },
+  onDisconnected: () => {
+    console.log('❌ WebSocket DISCONNECTED from chat')
+    connectionStatus.value = 'Disconnected'
+  },
+  onMessage: async (ws, event) => {
+    console.log('📥 RAW MESSAGE RECEIVED:', event.data)
+    console.log('📥 MESSAGE TYPE:', typeof event.data)
+    console.log('📥 IS BLOB?', event.data instanceof Blob)
+    
+    try {
+      // Handle Blob data properly like your debug page
+      let messageText: string
+      
+      if (event.data instanceof Blob) {
+        console.log('📥 Converting Blob to text...')
+        messageText = await event.data.text()
+        console.log('📥 Blob converted to:', messageText)
+      } else if (typeof event.data === 'string') {
+        messageText = event.data
+      } else {
+        throw new Error(`Unexpected data type: ${typeof event.data}`)
+      }
+      
+      const data = JSON.parse(messageText)
+      console.log('📥 PARSED MESSAGE:', data)
+      
+      if (data.type === 'message') {
+        // Add the transformed message to our messages
+        const message: Message = {
+          id: data.id,
+          username: data.username,
+          originalText: data.originalText,
+          transformedText: data.transformedText,
+          timestamp: data.timestamp
+        }
+        
+        messages.value.push(message)
+        
+        // Auto-scroll to bottom
+        nextTick(() => {
+          const messagesContainer = document.querySelector('.messages-container')
+          if (messagesContainer) {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight
+          }
+        })
+      } else if (data.type === 'user-count') {
+        connectedUsers.value = data.count
+        console.log('👥 User count updated:', data.count)
+      } else if (data.type === 'system') {
+        console.log('📢 System message:', data.message)
+      }
+    } catch (error) {
+      console.error('❌ Failed to parse message:', error)
+    }
+  },
+  onError: (error) => {
+    console.error('❌ WebSocket ERROR:', error)
+    connectionStatus.value = 'Error'
+  }
+})
+
+// Connect when user joins chat
+watch(username, (newUsername) => {
+  if (newUsername && connectionStatus.value === 'Disconnected') {
+    console.log('🔌 Connecting to WebSocket...')
+    open()
+  }
+})
+
+const sendMessage = () => {
+  if (!currentMessage.value.trim() || !username.value.trim() || connectionStatus.value !== 'Connected') return
   
-  isLoading.value = true
-  console.log('📤 Sending message:', currentMessage.value)
+  console.log('📤 SENDING MESSAGE via WebSocket:', currentMessage.value)
   
   try {
-    // Call the AI transformation API
-    const response = await $fetch<{ original: string; transformed: string }>('/api/text', {
-      method: 'POST',
-      body: { message: currentMessage.value }
-    })
-    
-    console.log('🤖 AI response:', response)
-    
-    // Add message to local messages array
-    const message: Message = {
-      id: Date.now().toString(),
+    const payload: OutgoingMessage = {
+      type: 'message',
       username: username.value,
-      originalText: currentMessage.value,
-      transformedText: response.transformed,
+      message: currentMessage.value,
       timestamp: new Date().toISOString()
     }
     
-    messages.value.push(message)
+    console.log('📤 PAYLOAD:', payload)
+    send(JSON.stringify(payload))
+    
     currentMessage.value = ''
-    
-    // Auto-scroll to bottom
-    nextTick(() => {
-      const messagesContainer = document.querySelector('.messages-container')
-      if (messagesContainer) {
-        messagesContainer.scrollTop = messagesContainer.scrollHeight
-      }
-    })
-    
   } catch (error) {
     console.error('❌ Failed to send message:', error)
-  } finally {
-    isLoading.value = false
   }
 }
 
@@ -78,21 +143,56 @@ const joinChat = () => {
 }
 
 const changeName = () => {
+  if (connectionStatus.value === 'Connected') {
+    close()
+  }
   username.value = ''
   usernameInput.value = ''
   messages.value = []
+  connectedUsers.value = 0
+  connectionStatus.value = 'Disconnected'
   if (typeof window !== 'undefined') {
     localStorage.removeItem('chat-username')
   }
 }
+
+// Clean up on unmount
+onUnmounted(() => {
+  if (connectionStatus.value === 'Connected') {
+    close()
+  }
+})
 </script>
 
 <template>
   <div class="min-h-screen bg-gray-50 p-4">
     <div class="max-w-2xl mx-auto">
-      <h1 class="text-3xl font-bold text-center mb-8 text-gray-800">
-        Positive Chat (Single User Demo)
-      </h1>
+      <div class="flex items-center justify-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-800">
+          Positive Chat
+        </h1>
+        <div class="ml-4 flex items-center space-x-4">
+          <div class="flex items-center">
+            <div 
+              class="w-3 h-3 rounded-full mr-2"
+              :class="{
+                'bg-green-500': connectionStatus === 'Connected',
+                'bg-yellow-500': connectionStatus === 'Connecting', 
+                'bg-red-500': connectionStatus === 'Disconnected',
+                'bg-orange-500': connectionStatus === 'Error'
+              }"
+            ></div>
+            <span class="text-sm text-gray-600">
+              {{ connectionStatus }}
+            </span>
+          </div>
+          <div v-if="connectedUsers > 0" class="flex items-center">
+            <span class="text-sm text-gray-600">
+              👥 {{ connectedUsers }} user{{ connectedUsers !== 1 ? 's' : '' }} online
+            </span>
+          </div>
+        </div>
+      </div>
       
       <!-- Username input -->
       <div v-if="!username" class="mb-6">
@@ -147,10 +247,9 @@ const changeName = () => {
           />
           <UButton 
             @click="sendMessage" 
-            :disabled="!currentMessage.trim() || isLoading"
-            :loading="isLoading"
+            :disabled="!currentMessage.trim() || connectionStatus !== 'Connected'"
           >
-            {{ isLoading ? 'Processing...' : 'Send' }}
+            Send
           </UButton>
         </div>
 
