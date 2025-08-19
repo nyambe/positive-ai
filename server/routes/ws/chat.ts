@@ -1,3 +1,15 @@
+// Message history for context
+interface ChatMessage {
+    username: string
+    originalText: string
+    transformedText: string
+    timestamp: string
+}
+
+// Store recent messages for context (sliding window of 10 messages)
+const messageHistory: ChatMessage[] = []
+const MAX_HISTORY_SIZE = 10
+
 // Copy of your working simple.ts pattern, modified for chat
 export default defineWebSocketHandler({
     open(peer) {
@@ -25,13 +37,42 @@ export default defineWebSocketHandler({
             if (data.type === 'message') {
                 console.log('🤖 CHAT: Transforming message with AI...')
 
-                // Call AI to transform the message
+                // Build conversation context from message history
+                let contextPrompt = ''
+                if (messageHistory.length > 0) {
+                    contextPrompt = 'Recent conversation context:\n\n'
+                    // Get last 5 messages for context
+                    const recentMessages = messageHistory.slice(-5)
+                    recentMessages.forEach(msg => {
+                        contextPrompt += `${msg.username}: "${msg.transformedText}"\n`
+                    })
+                    contextPrompt += '\n'
+                }
+
+                // Call AI to transform the message with context
                 const ai = hubAI()
                 const config = useRuntimeConfig()
                 const model = config.aiModel as any
-                const prompt = `You are a positive message transformer. Transform the following message to be more positive, constructive, and respectful while preserving the original meaning and intent. If the message is already positive, return it unchanged. Only return the transformed message, nothing else.
+                const prompt = `You are a communication assistant that helps people express themselves more constructively without changing their actual opinions.
 
-        Original message: "${data.message}"`
+                ${contextPrompt}
+                
+                Transform this message from ${data.username}: "${data.message}"
+                
+                RULES:
+                - NEVER change the person's opinion or sentiment
+                - ONLY improve HOW they express it  
+                - Remove harsh or aggressive language
+                - Use respectful, constructive phrasing
+                - Keep the same emotional intent
+                - If already respectful, return unchanged
+                
+                EXAMPLES:
+                "I hate the beach" → "The beach isn't really my thing"
+                "That's stupid" → "I don't think that approach would work"
+                "You're wrong" → "I see this differently"
+                
+                Only return the transformed message.`
 
                 const aiResult = await ai.run(model, {
                     prompt
@@ -50,6 +91,21 @@ export default defineWebSocketHandler({
                     transformedText: aiResult.response || data.message,
                     timestamp: new Date().toISOString()
                 }
+
+                // Add to message history (maintaining sliding window)
+                messageHistory.push({
+                    username: chatMessage.username,
+                    originalText: chatMessage.originalText,
+                    transformedText: chatMessage.transformedText,
+                    timestamp: chatMessage.timestamp
+                })
+
+                // Keep only the last MAX_HISTORY_SIZE messages
+                if (messageHistory.length > MAX_HISTORY_SIZE) {
+                    messageHistory.shift()
+                }
+
+                console.log(`📚 CHAT: Message history size: ${messageHistory.length}`)
 
                 // Broadcast transformed message to all users
                 peer.publish('chat-channel', chatMessage)
