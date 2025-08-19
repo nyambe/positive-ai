@@ -14,7 +14,8 @@
       "mcp__playwright__browser_wait_for",
       "Bash(cd:*)",
       "Bash(pkill:*)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "WebFetch(domain:developers.cloudflare.com)"
     ]
   },
   "enableAllProjectMcpServers": true,

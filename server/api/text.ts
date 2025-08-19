@@ -16,21 +16,34 @@ export default defineEventHandler(async (event) => {
   }
 
   const ai = hubAI()
+  const config = useRuntimeConfig()
+  const model = config.aiModel as any
   
-  const prompt = `You are a positive message transformer. Transform the following message to be more positive, constructive, and respectful while preserving the original meaning and intent. If the message is already positive, return it unchanged. Only return the transformed message, nothing else.
-
-Original message: "${body.message}"`
-const config = useRuntimeConfig()
-const model = config.aiModel as any
+  // OpenAI-style message format
+  const messages = [
+    {
+      role: 'system',
+      content: `You are a positive message transformer. Transform the following message to be more positive, constructive, and respectful while preserving the original meaning and intent. If the message is already positive, return it unchanged. Only return the transformed message, nothing else.`
+    },
+    {
+      role: 'user',
+      content: `Transform this message: "${body.message}"`
+    }
+  ]
 
   try {
     const result = await ai.run(model, {
-      prompt
+      input: messages
     })
+    
+    // Extract transformed text from OpenAI model response structure
+    const transformedText = result.response || 
+                          (result.output?.[1]?.content?.[0]?.text) || 
+                          body.message
     
     return {
       original: body.message,
-      transformed: result.response || body.message
+      transformed: transformedText
     }
   } catch (error) {
     console.error('AI transformation error:', error)

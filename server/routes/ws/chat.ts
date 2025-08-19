@@ -38,49 +38,63 @@ export default defineWebSocketHandler({
                 console.log('🤖 CHAT: Transforming message with AI...')
 
                 // Build conversation context from message history
-                let contextPrompt = ''
+                const conversationHistory: Array<{ role: string; content: string }> = []
                 if (messageHistory.length > 0) {
-                    contextPrompt = 'Recent conversation context:\n\n'
                     // Get last 5 messages for context
                     const recentMessages = messageHistory.slice(-5)
                     recentMessages.forEach(msg => {
-                        contextPrompt += `${msg.username}: "${msg.transformedText}"\n`
+                        conversationHistory.push({
+                            role: 'assistant',
+                            content: `${msg.username}: "${msg.transformedText}"`
+                        })
                     })
-                    contextPrompt += '\n'
                 }
 
-                // Call AI to transform the message with context
+                // Call AI to transform the message with OpenAI-style format
                 const ai = hubAI()
                 const config = useRuntimeConfig()
                 const model = config.aiModel as any
-                const prompt = `You are a communication assistant that helps people express themselves more constructively without changing their actual opinions.
+                
+                // Build messages array with system prompt, context, and user message
+                const messages = [
+                    {
+                        role: 'system',
+                        content: `You are a communication assistant that helps people express themselves more constructively without changing their actual opinions.
 
-                ${contextPrompt}
-                
-                Transform this message from ${data.username}: "${data.message}"
-                
-                RULES:
-                - NEVER change the person's opinion or sentiment
-                - ONLY improve HOW they express it  
-                - Remove harsh or aggressive language
-                - Use respectful, constructive phrasing
-                - Keep the same emotional intent
-                - If already respectful, return unchanged
-                
-                EXAMPLES:
-                "I hate the beach" → "The beach isn't really my thing"
-                "That's stupid" → "I don't think that approach would work"
-                "You're wrong" → "I see this differently"
-                
-                Only return the transformed message.`
+RULES:
+- NEVER change the person's opinion or sentiment
+- ONLY improve HOW they express it  
+- Remove harsh or aggressive language
+- Use respectful, constructive phrasing
+- Keep the same emotional intent and language
+- If already respectful, return unchanged
+
+EXAMPLES:
+"I hate the beach" → "The beach isn't really my thing"
+"That's stupid" → "I don't think that approach would work"
+"You're wrong" → "I see this differently"
+
+Only return the transformed message, nothing else.`
+                    },
+                    ...conversationHistory,
+                    {
+                        role: 'user',
+                        content: `Transform this message from ${data.username}: "${data.message}"`
+                    }
+                ]
 
                 const aiResult = await ai.run(model, {
-                    prompt
+                    input: messages
                 })
+
+                // Extract transformed text from OpenAI model response structure
+                const transformedText = aiResult.response || 
+                                      (aiResult.output?.[1]?.content?.[0]?.text) || 
+                                      data.message
 
                 console.log('🤖 CHAT: AI transformation complete')
                 console.log('Original:', data.message)
-                console.log('Transformed:', aiResult.response)
+                console.log('Transformed:', transformedText)
 
                 // Create the transformed message
                 const chatMessage = {
@@ -88,7 +102,7 @@ export default defineWebSocketHandler({
                     id: Date.now().toString(),
                     username: data.username,
                     originalText: data.message,
-                    transformedText: aiResult.response || data.message,
+                    transformedText: transformedText,
                     timestamp: new Date().toISOString()
                 }
 

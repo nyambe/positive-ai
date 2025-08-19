@@ -10,7 +10,7 @@ export default defineNuxtConfig({
   // Env variables - https://nuxt.com/docs/getting-started/configuration#environment-variables-and-private-tokens
   runtimeConfig: {
     // Private keys (only available on server-side)
-    aiModel: process.env.AI_MODEL || '@cf/meta/llama-3.2-3b-instruct',
+    aiModel: process.env.AI_MODEL || '@cf/openai/gpt-oss-120b',
     
     public: {
       // Can be overridden by NUXT_PUBLIC_HELLO_TEXT environment variable
