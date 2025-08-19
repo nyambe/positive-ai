@@ -20,7 +20,9 @@ const usernameInput = ref('')
 const currentMessage = ref('')
 const messages = ref<Message[]>([])
 const connectedUsers = ref(0)
+const connectedUsersList = ref<string[]>([])
 const connectionStatus = ref('Disconnected')
+const isAiThinking = ref(false)
 
 // Load username from localStorage
 onMounted(() => {
@@ -71,6 +73,9 @@ const { send, open, close } = useWebSocket('/ws/chat', {
       console.log('📥 PARSED MESSAGE:', data)
       
       if (data.type === 'message') {
+        // Hide AI thinking indicator
+        isAiThinking.value = false
+        
         // Add the transformed message to our messages
         const message: Message = {
           id: data.id,
@@ -92,6 +97,12 @@ const { send, open, close } = useWebSocket('/ws/chat', {
       } else if (data.type === 'user-count') {
         connectedUsers.value = data.count
         console.log('👥 User count updated:', data.count)
+      } else if (data.type === 'user-list') {
+        connectedUsersList.value = data.users || []
+        console.log('👥 Connected users:', data.users)
+      } else if (data.type === 'ai-thinking') {
+        isAiThinking.value = data.thinking
+        console.log('🤖 AI thinking:', data.thinking)
       } else if (data.type === 'system') {
         console.log('📢 System message:', data.message)
       }
@@ -119,6 +130,17 @@ const sendMessage = () => {
   console.log('📤 SENDING MESSAGE via WebSocket:', currentMessage.value)
   
   try {
+    // Show AI thinking indicator
+    isAiThinking.value = true
+    
+    // Auto-scroll to show thinking indicator
+    nextTick(() => {
+      const messagesContainer = document.querySelector('.messages-container')
+      if (messagesContainer) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight
+      }
+    })
+    
     const payload: OutgoingMessage = {
       type: 'message',
       username: username.value,
@@ -130,8 +152,14 @@ const sendMessage = () => {
     send(JSON.stringify(payload))
     
     currentMessage.value = ''
+    
+    // Hide AI thinking after 10 seconds (fallback)
+    setTimeout(() => {
+      isAiThinking.value = false
+    }, 10000)
   } catch (error) {
     console.error('❌ Failed to send message:', error)
+    isAiThinking.value = false
   }
 }
 
@@ -222,6 +250,24 @@ onUnmounted(() => {
 
       <!-- Chat interface -->
       <div v-else class="space-y-4">
+        <!-- Connected Users List -->
+        <UCard v-if="connectedUsersList.length > 0">
+          <div class="flex items-center space-x-2">
+            <h3 class="text-sm font-medium text-gray-700">Usuarios conectados:</h3>
+            <div class="flex flex-wrap gap-1">
+              <span 
+                v-for="user in connectedUsersList" 
+                :key="user"
+                class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
+                :class="user === username ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-700'"
+              >
+                {{ user }}
+                <span v-if="user === username" class="ml-1">(tú)</span>
+              </span>
+            </div>
+          </div>
+        </UCard>
+
         <!-- Messages -->
         <UCard class="h-96 overflow-y-auto messages-container">
           <div class="space-y-3">
@@ -260,7 +306,22 @@ onUnmounted(() => {
                 </div>
               </div>
             </div>
-            <div v-if="messages.length === 0" class="text-center text-gray-500 py-8">
+            
+            <!-- AI Thinking Indicator -->
+            <div v-if="isAiThinking" class="flex justify-start">
+              <div class="bg-gray-200 text-gray-800 rounded-2xl rounded-bl-sm px-4 py-2 max-w-xs">
+                <div class="flex items-center space-x-2">
+                  <div class="flex space-x-1">
+                    <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style="animation-delay: 0ms"></div>
+                    <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style="animation-delay: 150ms"></div>
+                    <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style="animation-delay: 300ms"></div>
+                  </div>
+                  <span class="text-sm text-gray-600">IA pensando...</span>
+                </div>
+              </div>
+            </div>
+            
+            <div v-if="messages.length === 0 && !isAiThinking" class="text-center text-gray-500 py-8">
               ¡Empieza la conversación! no se guardan los mensajes!! privacidad total. Si escribes algo negativo, el chat lo transforma en algo positivo.
             </div>
           </div>

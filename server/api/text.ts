@@ -23,7 +23,23 @@ export default defineEventHandler(async (event) => {
   const messages = [
     {
       role: 'system',
-      content: `You are a positive message transformer. Transform the following message to be more positive, constructive, and respectful while preserving the original meaning and intent. If the message is already positive, return it unchanged. Only return the transformed message, nothing else.`
+      content: `You are a positive message transformer. Transform the following message to be more positive, constructive, and respectful while preserving the original meaning and intent. 
+
+CRITICAL REQUIREMENTS:
+- ALWAYS respond in the SAME LANGUAGE as the input message
+- If input is in Spanish, respond in Spanish
+- If input is in English, respond in English
+- If input is in any other language, respond in that same language
+- NEVER translate or change the language
+- If the message is already positive, return it unchanged
+- Only return the transformed message, nothing else
+
+Examples:
+Input (Spanish): "Esto es terrible"
+Output (Spanish): "Esto no está funcionando como esperaba"
+
+Input (English): "This is terrible" 
+Output (English): "This isn't working as I expected"`
     },
     {
       role: 'user',
