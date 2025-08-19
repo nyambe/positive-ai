@@ -10,6 +10,19 @@ interface ChatMessage {
 const messageHistory: ChatMessage[] = []
 const MAX_HISTORY_SIZE = 10
 
+// Store connected users (Map of peer ID to username)
+const connectedUsers = new Map<string, string>()
+
+// Helper function to broadcast user list to all connected peers
+function broadcastUserList(peer: any) {
+    const userList = Array.from(connectedUsers.values())
+    peer.publish('chat-channel', {
+        type: 'user-list',
+        users: userList
+    })
+    console.log('👥 CHAT: Broadcasting user list:', userList)
+}
+
 // Copy of your working simple.ts pattern, modified for chat
 export default defineWebSocketHandler({
     open(peer) {
@@ -36,6 +49,15 @@ export default defineWebSocketHandler({
 
             if (data.type === 'message') {
                 console.log('🤖 CHAT: Transforming message with AI...')
+                
+                // Track the user if not already tracked
+                if (!connectedUsers.has(peer.id) && data.username) {
+                    connectedUsers.set(peer.id, data.username)
+                    console.log(`👤 CHAT: User ${data.username} registered (peer: ${peer.id})`)
+                    
+                    // Broadcast updated user list
+                    broadcastUserList(peer)
+                }
 
                 // Build conversation context from message history
                 const conversationHistory: Array<{ role: string; content: string }> = []
@@ -145,17 +167,27 @@ Only return the transformed message in the SAME language, nothing else.`
     },
 
     close(peer) {
-        console.log('🔴 CHAT: User disconnected')
+        const disconnectedUser = connectedUsers.get(peer.id)
+        console.log(`🔴 CHAT: User ${disconnectedUser || 'unknown'} disconnected (peer: ${peer.id})`)
         console.log('🔴 CHAT: Remaining peers:', peer.peers.size)
+
+        // Remove user from connected users list
+        if (connectedUsers.has(peer.id)) {
+            connectedUsers.delete(peer.id)
+            console.log(`👤 CHAT: Removed ${disconnectedUser} from user list`)
+        }
 
         peer.unsubscribe('chat-channel')
 
-        // Update user count after a delay
+        // Update user count and user list after a delay
         setTimeout(() => {
             peer.publish('chat-channel', {
                 type: 'user-count',
                 count: peer.peers.size
             })
+            
+            // Broadcast updated user list
+            broadcastUserList(peer)
         }, 100)
     }
 })
