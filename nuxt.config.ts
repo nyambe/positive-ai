@@ -21,7 +21,8 @@ export default defineNuxtConfig({
   // https://hub.nuxt.com/docs/getting-started/installation#options
   nitro: {
     experimental: {
-      websocket: true
+      websocket: true,
+      openAPI: true
     }
   },
   hub: {

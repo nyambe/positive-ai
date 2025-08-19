@@ -242,7 +242,7 @@ onUnmounted(() => {
               </p>
             </div>
             <div v-if="messages.length === 0" class="text-center text-gray-500 py-8">
-              Aún no hay mensajes. ¡Empieza la conversación!
+              ¡Empieza la conversación! no se guardan los mensajes!! privacidad total. Si escribes algo negativo, el chat lo transforma en algo positivo.
             </div>
           </div>
         </UCard>
