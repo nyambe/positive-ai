@@ -27,11 +27,13 @@ export default defineWebSocketHandler({
 
                 // Call AI to transform the message
                 const ai = hubAI()
+                const config = useRuntimeConfig()
+                const model = config.aiModel as any
                 const prompt = `You are a positive message transformer. Transform the following message to be more positive, constructive, and respectful while preserving the original meaning and intent. If the message is already positive, return it unchanged. Only return the transformed message, nothing else.
 
         Original message: "${data.message}"`
 
-                const aiResult = await ai.run('@cf/meta/llama-3.1-8b-instruct', {
+                const aiResult = await ai.run(model, {
                     prompt
                 })
 

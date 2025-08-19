@@ -20,9 +20,11 @@ export default defineEventHandler(async (event) => {
   const prompt = `You are a positive message transformer. Transform the following message to be more positive, constructive, and respectful while preserving the original meaning and intent. If the message is already positive, return it unchanged. Only return the transformed message, nothing else.
 
 Original message: "${body.message}"`
+const config = useRuntimeConfig()
+const model = config.aiModel as any
 
   try {
-    const result = await ai.run('@cf/meta/llama-3.1-8b-instruct', {
+    const result = await ai.run(model, {
       prompt
     })
     
