@@ -228,18 +228,37 @@ onUnmounted(() => {
             <div
               v-for="message in messages"
               :key="message.id"
-              class="p-3 bg-white rounded-lg border"
+              class="flex"
+              :class="message.username === username ? 'justify-end' : 'justify-start'"
             >
-              <div class="flex justify-between items-start mb-2">
-                <span class="font-medium text-blue-600">{{ message.username }}</span>
-                <span class="text-xs text-gray-500">
+              <div 
+                class="max-w-xs lg:max-w-md px-4 py-2 rounded-2xl"
+                :class="message.username === username 
+                  ? 'bg-blue-500 text-white rounded-br-sm' 
+                  : 'bg-gray-200 text-gray-800 rounded-bl-sm'"
+              >
+                <!-- Show username only for other people's messages -->
+                <div v-if="message.username !== username" class="text-xs opacity-75 mb-1">
+                  {{ message.username }}
+                </div>
+                
+                <p class="text-sm">{{ message.transformedText }}</p>
+                
+                <!-- Show original text if transformed -->
+                <p v-if="message.originalText !== message.transformedText" 
+                   class="text-xs mt-1 italic"
+                   :class="message.username === username ? 'text-blue-100' : 'text-gray-500'"
+                >
+                  Original: "{{ message.originalText }}"
+                </p>
+                
+                <!-- Timestamp -->
+                <div class="text-xs mt-1"
+                     :class="message.username === username ? 'text-blue-100' : 'text-gray-500'"
+                >
                   {{ new Date(message.timestamp).toLocaleTimeString() }}
-                </span>
+                </div>
               </div>
-              <p class="text-gray-800">{{ message.transformedText }}</p>
-              <p v-if="message.originalText !== message.transformedText" class="text-xs text-gray-500 mt-1 italic">
-                Original: "{{ message.originalText }}"
-              </p>
             </div>
             <div v-if="messages.length === 0" class="text-center text-gray-500 py-8">
               ¡Empieza la conversación! no se guardan los mensajes!! privacidad total. Si escribes algo negativo, el chat lo transforma en algo positivo.
