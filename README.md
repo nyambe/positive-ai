@@ -1,6 +1,12 @@
-o# Chat Positivo 🌟
+# Chat Positivo 🌟
 
 Una aplicación de chat en tiempo real que transforma automáticamente los mensajes negativos en comunicación más positiva y constructiva usando Inteligencia Artificial.
+
+## 🚀 Demo en Vivo
+
+**👉 [Prueba Chat Positivo ahora](https://chato.samuel-ebuka.workers.dev/)**
+
+¡Experimenta la transformación de mensajes en tiempo real! Abre el enlace, elige un nombre de usuario y comienza a chatear. Prueba escribir mensajes negativos y observa cómo la IA los transforma automáticamente en comunicación más positiva.
 
 ## 🎯 ¿Qué es Chat Positivo?
 
