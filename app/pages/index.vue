@@ -220,6 +220,23 @@ const getEmotionEmoji = (emotion: string): string => {
   return emotionMap[emotion] || '🤔'
 }
 
+// Helper function for emotion icons (Nuxt UI)
+const getEmotionIcon = (emotion: string): string => {
+  const emotionIconMap: Record<string, string> = {
+    playful: 'i-heroicons-face-smile-20-solid',
+    confused: 'i-heroicons-question-mark-circle-20-solid',
+    annoyed: 'i-heroicons-face-frown-20-solid',
+    frustrated: 'i-heroicons-fire-20-solid',
+    disappointed: 'i-heroicons-arrow-trending-down-20-solid',
+    angry: 'i-heroicons-bolt-20-solid',
+    hurt: 'i-heroicons-heart-20-solid',
+    fear: 'i-heroicons-shield-exclamation-20-solid',
+    surprised: 'i-heroicons-exclamation-circle-20-solid',
+    neutral: 'i-heroicons-minus-circle-20-solid'
+  }
+  return emotionIconMap[emotion] || 'i-heroicons-question-mark-circle-20-solid'
+}
+
 // Spanish translations for emotions
 const getEmotionLabel = (emotion: string): string => {
   const emotionLabels: Record<string, string> = {
@@ -379,31 +396,35 @@ onUnmounted(() => {
                 <div v-if="message.username === username && message.analysis" 
                      class="flex flex-wrap gap-1 mt-2">
                   <!-- Intensity & Sentiment Score -->
-                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
+                  <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium"
                         :class="{
                           'bg-green-100 text-green-800': message.analysis.sentiment_score <= 3,
                           'bg-yellow-100 text-yellow-800': message.analysis.sentiment_score > 3 && message.analysis.sentiment_score <= 6,
                           'bg-orange-100 text-orange-800': message.analysis.sentiment_score > 6 && message.analysis.sentiment_score <= 8,
                           'bg-red-100 text-red-800': message.analysis.sentiment_score > 8
                         }">
-                    📊 {{ message.analysis.sentiment_score }}/10 ({{ getIntensityLabel(message.analysis.intensity) }})
+                    <UIcon name="i-heroicons-chart-bar-20-solid" class="w-3 h-3" />
+                    {{ message.analysis.sentiment_score }}/10 ({{ getIntensityLabel(message.analysis.intensity) }})
                   </span>
 
                   <!-- Emotion -->
-                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                    {{ getEmotionEmoji(message.analysis.emotion) }} {{ getEmotionLabel(message.analysis.emotion) }}
+                  <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                    <UIcon :name="getEmotionIcon(message.analysis.emotion)" class="w-3 h-3" />
+                    {{ getEmotionLabel(message.analysis.emotion) }}
                   </span>
 
                   <!-- Attack Type Warning -->
                   <span v-if="message.analysis.attack_type !== 'none'" 
-                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                    ⚠️ {{ getAttackTypeLabel(message.analysis.attack_type) }}
+                        class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                    <UIcon name="i-heroicons-exclamation-triangle-20-solid" class="w-3 h-3" />
+                    {{ getAttackTypeLabel(message.analysis.attack_type) }}
                   </span>
 
                   <!-- Transformation Indicator -->
                   <span v-if="message.transformation?.needed" 
-                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                    ✨ transformado
+                        class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    <UIcon name="i-heroicons-sparkles-20-solid" class="w-3 h-3" />
+                    transformado
                   </span>
                 </div>
                 
@@ -466,6 +487,103 @@ onUnmounted(() => {
             Cambiar nombre
           </UButton>
         </div>
+
+        <!-- Analysis Legend -->
+        <UCard class="mt-4">
+          <template #header>
+            <h3 class="text-sm font-medium text-gray-700">
+              📊 Leyenda del Análisis de Comunicación / Communication Analysis Legend
+            </h3>
+          </template>
+          
+          <div class="space-y-3 text-xs text-gray-600">
+            <!-- Intensity Levels -->
+            <div>
+              <h4 class="font-medium text-gray-700 mb-1">Niveles de Intensidad / Intensity Levels:</h4>
+              <div class="flex flex-wrap gap-2">
+                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-100 text-green-800">
+                  <UIcon name="i-heroicons-chart-bar-20-solid" class="w-3 h-3" />
+                  0-2 Positivo / Positive
+                </span>
+                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-yellow-100 text-yellow-800">
+                  <UIcon name="i-heroicons-chart-bar-20-solid" class="w-3 h-3" />
+                  3-4 Leve / Light
+                </span>
+                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-orange-100 text-orange-800">
+                  <UIcon name="i-heroicons-chart-bar-20-solid" class="w-3 h-3" />
+                  5-6 Moderado / Moderate
+                </span>
+                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-red-100 text-red-800">
+                  <UIcon name="i-heroicons-chart-bar-20-solid" class="w-3 h-3" />
+                  7-10 Alto/Muy Alto / High/Very High
+                </span>
+              </div>
+            </div>
+
+            <!-- Emotions -->
+            <div>
+              <h4 class="font-medium text-gray-700 mb-1">Emociones / Emotions:</h4>
+              <div class="flex flex-wrap gap-1 text-xs">
+                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-purple-100 text-purple-800">
+                  <UIcon name="i-heroicons-face-smile-20-solid" class="w-3 h-3" />
+                  Juguetón/Playful
+                </span>
+                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-purple-100 text-purple-800">
+                  <UIcon name="i-heroicons-fire-20-solid" class="w-3 h-3" />
+                  Frustrado/Frustrated
+                </span>
+                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-purple-100 text-purple-800">
+                  <UIcon name="i-heroicons-bolt-20-solid" class="w-3 h-3" />
+                  Enojado/Angry
+                </span>
+                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-purple-100 text-purple-800">
+                  <UIcon name="i-heroicons-face-frown-20-solid" class="w-3 h-3" />
+                  Molesto/Annoyed
+                </span>
+                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-purple-100 text-purple-800">
+                  <UIcon name="i-heroicons-question-mark-circle-20-solid" class="w-3 h-3" />
+                  Confundido/Confused
+                </span>
+              </div>
+            </div>
+
+            <!-- Attack Types -->
+            <div>
+              <h4 class="font-medium text-gray-700 mb-1">Tipos de Ataque / Attack Types:</h4>
+              <div class="flex flex-wrap gap-1 text-xs">
+                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-red-100 text-red-800">
+                  <UIcon name="i-heroicons-exclamation-triangle-20-solid" class="w-3 h-3" />
+                  Personal/Character
+                </span>
+                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-red-100 text-red-800">
+                  <UIcon name="i-heroicons-exclamation-triangle-20-solid" class="w-3 h-3" />
+                  Comportamiento/Behavior
+                </span>
+                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-red-100 text-red-800">
+                  <UIcon name="i-heroicons-exclamation-triangle-20-solid" class="w-3 h-3" />
+                  Opinión/Opinion
+                </span>
+                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-orange-100 text-orange-800">
+                  <UIcon name="i-heroicons-exclamation-triangle-20-solid" class="w-3 h-3" />
+                  Broma/Playful Teasing
+                </span>
+              </div>
+            </div>
+
+            <!-- Transformation -->
+            <div>
+              <h4 class="font-medium text-gray-700 mb-1">Transformación / Transformation:</h4>
+              <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-100 text-blue-800 text-xs">
+                <UIcon name="i-heroicons-sparkles-20-solid" class="w-3 h-3" />
+                Transformado / Transformed - El mensaje fue mejorado con CNV / Message was improved with NVC
+              </span>
+            </div>
+
+            <p class="text-xs text-gray-500 italic mt-2">
+              * Solo el remitente ve este análisis / Only the sender sees this analysis
+            </p>
+          </div>
+        </UCard>
       </div>
     </div>
   </div>
