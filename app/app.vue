@@ -6,6 +6,6 @@
 <style>
 body {
   font-family: 'Roboto Mono', monospace;
-  font-weight: 100; /* For the thin weight */
+  font-weight: 100; 
 }
 </style>
