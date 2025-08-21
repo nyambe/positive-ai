@@ -5,6 +5,7 @@ interface Analysis {
   emotion: string
   attack_type: string
   communication_style: string
+  intensity: string
 }
 
 interface Transformation {
@@ -202,7 +203,7 @@ const changeName = () => {
   }
 }
 
-// Helper function for emotion emojis
+// Helper function for emotion emojis and Spanish labels
 const getEmotionEmoji = (emotion: string): string => {
   const emotionMap: Record<string, string> = {
     playful: '😄',
@@ -217,6 +218,47 @@ const getEmotionEmoji = (emotion: string): string => {
     neutral: '😐'
   }
   return emotionMap[emotion] || '🤔'
+}
+
+// Spanish translations for emotions
+const getEmotionLabel = (emotion: string): string => {
+  const emotionLabels: Record<string, string> = {
+    playful: 'juguetón',
+    confused: 'confundido',
+    annoyed: 'molesto',
+    frustrated: 'frustrado',
+    disappointed: 'decepcionado',
+    angry: 'enojado',
+    hurt: 'herido',
+    fear: 'temeroso',
+    surprised: 'sorprendido',
+    neutral: 'neutral'
+  }
+  return emotionLabels[emotion] || emotion
+}
+
+// Spanish translations for attack types
+const getAttackTypeLabel = (attackType: string): string => {
+  const attackLabels: Record<string, string> = {
+    character: 'personal',
+    behavior: 'comportamiento',
+    opinion: 'opinión',
+    'playful-teasing': 'broma',
+    none: 'ninguno'
+  }
+  return attackLabels[attackType] || attackType
+}
+
+// Spanish translations for intensity levels
+const getIntensityLabel = (intensity: string): string => {
+  const intensityLabels: Record<string, string> = {
+    'positivo': 'positivo',
+    'leve': 'leve',
+    'moderado': 'moderado',
+    'alto': 'alto',
+    'muy-alto': 'muy alto'
+  }
+  return intensityLabels[intensity] || intensity
 }
 
 // Clean up on unmount
@@ -336,7 +378,7 @@ onUnmounted(() => {
                 <!-- Analysis badges (only shown to sender) -->
                 <div v-if="message.username === username && message.analysis" 
                      class="flex flex-wrap gap-1 mt-2">
-                  <!-- Sentiment Score -->
+                  <!-- Intensity & Sentiment Score -->
                   <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
                         :class="{
                           'bg-green-100 text-green-800': message.analysis.sentiment_score <= 3,
@@ -344,18 +386,18 @@ onUnmounted(() => {
                           'bg-orange-100 text-orange-800': message.analysis.sentiment_score > 6 && message.analysis.sentiment_score <= 8,
                           'bg-red-100 text-red-800': message.analysis.sentiment_score > 8
                         }">
-                    📊 {{ message.analysis.sentiment_score }}/10
+                    📊 {{ message.analysis.sentiment_score }}/10 ({{ getIntensityLabel(message.analysis.intensity) }})
                   </span>
 
                   <!-- Emotion -->
                   <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                    {{ getEmotionEmoji(message.analysis.emotion) }} {{ message.analysis.emotion }}
+                    {{ getEmotionEmoji(message.analysis.emotion) }} {{ getEmotionLabel(message.analysis.emotion) }}
                   </span>
 
                   <!-- Attack Type Warning -->
                   <span v-if="message.analysis.attack_type !== 'none'" 
                         class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                    ⚠️ {{ message.analysis.attack_type }}
+                    ⚠️ {{ getAttackTypeLabel(message.analysis.attack_type) }}
                   </span>
 
                   <!-- Transformation Indicator -->

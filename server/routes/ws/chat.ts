@@ -170,6 +170,18 @@ Transform it to be more respectful and constructive while keeping the same meani
                     analysisData = JSON.parse(jsonResponse)
                     console.log('🧠 CHAT: Analysis:', analysisData.analysis)
                     console.log('✨ CHAT: Transformation needed:', analysisData.transformation.needed)
+                    
+                    // Add intensity level based on sentiment score
+                    const score = analysisData.analysis.sentiment_score
+                    let intensity: string
+                    if (score <= 2) intensity = 'positivo'
+                    else if (score <= 4) intensity = 'leve'
+                    else if (score <= 6) intensity = 'moderado'
+                    else if (score <= 8) intensity = 'alto'
+                    else intensity = 'muy-alto'
+                    
+                    analysisData.analysis.intensity = intensity
+                    
                 } catch (parseError) {
                     console.error('❌ CHAT: Failed to parse AI JSON response:', parseError)
                     // Fallback to simple transformation
@@ -178,7 +190,8 @@ Transform it to be more respectful and constructive while keeping the same meani
                             sentiment_score: 5,
                             emotion: 'neutral',
                             attack_type: 'none',
-                            communication_style: 'neutral'
+                            communication_style: 'neutral',
+                            intensity: 'moderado'
                         },
                         transformation: {
                             needed: false,
