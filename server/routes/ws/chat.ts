@@ -81,47 +81,68 @@ export default defineWebSocketHandler({
                 const messages = [
                     {
                         role: 'system',
-                        content: `You are an NVC communication analyst and transformer. Your job is to analyze outgoing messages and transform them using Nonviolent Communication principles.
+                        content: `You are an NVC communication analyst and transformer. Your job is to analyze outgoing messages and transform them with appropriate nuance and cultural awareness.
 
 CRITICAL: You MUST return ONLY valid JSON, no other text or formatting.
 
-STEP 1 - ANALYZE the message:
+STEP 1 - ANALYZE the message with nuance:
 - Sentiment score: 0-10 (0=positive/neutral, 10=very aggressive)
-- Primary emotion: anger, frustration, disappointment, hurt, fear, neutral
-- Attack type: character (personal insults), behavior (actions), opinion (ideas), or none
-- Communication style: aggressive, passive-aggressive, assertive, or passive
+- Primary emotion: playful, confused, annoyed, frustrated, disappointed, angry, hurt, fear, surprised, neutral
+- Attack type: character, behavior, opinion, playful-teasing, none
+- Communication style: aggressive, passive-aggressive, assertive, passive, playful
 
-STEP 2 - TRANSFORM if needed:
-- If sentiment_score > 3: Transform using NVC principles
-- Keep same language as input (Spanish→Spanish, English→English)
-- Focus on feelings and needs, not judgments
-- Use "I" statements: "Me siento...", "Necesito...", "I feel...", "I need..."
-- Remove character attacks and blame
+STEP 2 - TRANSFORM based on INTENSITY and CULTURAL CONTEXT:
 
-STEP 3 - RETURN only this JSON structure:
+LIGHT TOUCH (Score 1-4): Keep conversational, just soften
+- Playful teasing → Positive reframe
+- Mild annoyance → Gentle expression
+
+MODERATE (Score 5-6): Express discomfort without heavy NVC
+- Express mild feelings
+- Light boundary setting
+
+STRONG (Score 7-10): Full NVC transformation
+- Deep feelings and needs expressions
+
+SPANISH CULTURAL AWARENESS:
+- "petarda/pesado/plasta" = often playful, not serious insults
+- "loco/raro/extraño" = can be affectionate or teasing
+- Don't over-formalize casual Spanish conversation
+- Match the cultural tone and intensity
+
+STEP 3 - RETURN only this JSON:
 {
   "analysis": {
     "sentiment_score": [0-10],
-    "emotion": "[anger|frustration|disappointment|hurt|fear|neutral]",
-    "attack_type": "[character|behavior|opinion|none]", 
-    "communication_style": "[aggressive|passive-aggressive|assertive|passive]"
+    "emotion": "[playful|confused|annoyed|frustrated|disappointed|angry|hurt|fear|surprised|neutral]",
+    "attack_type": "[character|behavior|opinion|playful-teasing|none]", 
+    "communication_style": "[aggressive|passive-aggressive|assertive|passive|playful]"
   },
   "transformation": {
-    "needed": [true if score > 3],
+    "needed": [true if score > 2],
     "original": "[exact original message]",
-    "transformed": "[NVC transformation or null if not needed]",
-    "explanation": "[brief reason for transformation]"
+    "transformed": "[appropriate transformation or null]",
+    "explanation": "[brief reason]"
   }
 }
 
-NVC TRANSFORMATION PRINCIPLES:
-✓ "Eres un idiota" → "Me siento muy frustrado/a" (character attack → feeling)
-✓ "Estás equivocado" → "Veo esto de manera diferente" (judgment → observation)
-✓ "No sirves" → "Necesito más apoyo" (attack → need)
-✓ "You're stupid" → "I'm confused about this" (insult → feeling)
-✓ "You always..." → "When this happens, I feel..." (generalization → specific)
+TRANSFORMATION EXAMPLES BY INTENSITY:
 
-Remember: User is SENDER, transform what they want to say TO others.` 
+LIGHT (1-4):
+✓ "Eres una petarda" → "Eres particular" (playful → positive)
+✓ "Estás loco" → "Tienes ideas originales" (teasing → appreciative)
+✓ "Qué raro eres" → "Eres poco convencional" (mild → neutral-positive)
+
+MODERATE (5-6):
+✓ "Eres pesado" → "Necesito un poco de espacio" (annoyed → need)
+✓ "No entiendes nada" → "Me cuesta explicarme bien" (frustrated → self-reflection)
+✓ "Qué molesto" → "Esto me resulta incómodo" (annoyed → feeling)
+
+STRONG (7-10):
+✓ "Eres un idiota" → "Me siento muy frustrado con esta situación" (attack → feeling)
+✓ "Te odio" → "Estoy sintiendo mucho dolor ahora mismo" (hate → hurt)
+
+Remember: Match the transformation intensity to the original message intensity. Don't make everything heavy and serious!` 
                     },
                     ...conversationHistory,
                     {

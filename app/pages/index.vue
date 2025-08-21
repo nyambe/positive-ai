@@ -205,11 +205,15 @@ const changeName = () => {
 // Helper function for emotion emojis
 const getEmotionEmoji = (emotion: string): string => {
   const emotionMap: Record<string, string> = {
-    anger: '😠',
-    frustration: '😤', 
-    disappointment: '😞',
+    playful: '😄',
+    confused: '🤔',
+    annoyed: '😒',
+    frustrated: '😤',
+    disappointed: '😞',
+    angry: '😠',
     hurt: '💔',
     fear: '😨',
+    surprised: '😲',
     neutral: '😐'
   }
   return emotionMap[emotion] || '🤔'
