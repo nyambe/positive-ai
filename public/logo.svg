@@ -1,0 +1,42 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 128 128"
+  role="img"
+  aria-labelledby="title desc"
+>
+  <title id="title">Chat Bubble with Two Plus Eyes</title>
+  <desc id="desc">
+    Simple chat bubble outline containing two plus signs, symbolizing positive and assertive dialogue.
+  </desc>
+
+  <style>
+    .line { stroke: black; stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+  </style>
+
+  <!-- Chat bubble -->
+  <path class="line"
+    d="M24 28
+       h80
+       a12 12 0 0 1 12 12
+       v44
+       a12 12 0 0 1 -12 12
+       h-40
+       l-20 20
+       v-20
+       h-20
+       a12 12 0 0 1 -12 -12
+       v-44
+       a12 12 0 0 1 12 -12z" />
+
+  <!-- Left plus -->
+  <g class="line">
+    <line x1="48" y1="56" x2="48" y2="68"/>
+    <line x1="42" y1="62" x2="54" y2="62"/>
+  </g>
+
+  <!-- Right plus -->
+  <g class="line">
+    <line x1="80" y1="56" x2="80" y2="68"/>
+    <line x1="74" y1="62" x2="86" y2="62"/>
+  </g>
+</svg>
