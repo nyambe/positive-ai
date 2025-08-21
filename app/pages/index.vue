@@ -40,7 +40,7 @@ const connectedUsers = ref(0)
 const connectedUsersList = ref<string[]>([])
 const connectionStatus = ref('Disconnected')
 const isAiThinking = ref(false)
-const showLegend = ref(false)
+const showLegend = ref(true)
 
 // Load username from localStorage
 onMounted(() => {
@@ -511,20 +511,24 @@ onUnmounted(() => {
           class="mt-4"
           :items="[
             {
-              label: '📊 Niveles de Intensidad / Intensity Levels',
-              slot: 'intensity-levels'
+              label: 'Niveles de Intensidad / Intensity Levels',
+              slot: 'intensity-levels',
+              icon: 'i-heroicons-chart-bar-20-solid'
             },
             {
-              label: '😄 Emociones / Emotions', 
-              slot: 'emotions'
+              label: 'Emociones / Emotions', 
+              slot: 'emotions',
+              icon: 'i-heroicons-face-smile-20-solid'
             },
             {
-              label: '⚠️ Tipos de Ataque / Attack Types',
-              slot: 'attack-types'
+              label: 'Tipos de Ataque / Attack Types',
+              slot: 'attack-types',
+              icon: 'i-heroicons-exclamation-triangle-20-solid'
             },
             {
-              label: '✨ Transformación / Transformation',
-              slot: 'transformation'
+              label: 'Transformación / Transformation',
+              slot: 'transformation',
+              icon: 'i-heroicons-sparkles-20-solid'
             }
           ]"
         >
