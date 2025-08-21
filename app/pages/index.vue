@@ -40,6 +40,7 @@ const connectedUsers = ref(0)
 const connectedUsersList = ref<string[]>([])
 const connectionStatus = ref('Disconnected')
 const isAiThinking = ref(false)
+const showLegend = ref(false)
 
 // Load username from localStorage
 onMounted(() => {
@@ -488,102 +489,126 @@ onUnmounted(() => {
           </UButton>
         </div>
 
-        <!-- Analysis Legend -->
-        <UCard class="mt-4">
-          <template #header>
-            <h3 class="text-sm font-medium text-gray-700">
-              📊 Leyenda del Análisis de Comunicación / Communication Analysis Legend
-            </h3>
+        <!-- Analysis Legend Toggle -->
+        <div class="text-center mt-4">
+          <UButton
+            @click="showLegend = !showLegend"
+            variant="ghost"
+            size="sm"
+            class="text-gray-600"
+          >
+            <UIcon 
+              name="i-heroicons-information-circle-20-solid" 
+              class="w-4 h-4 mr-1" 
+            />
+            {{ showLegend ? 'Ocultar' : 'Ver' }} Leyenda / {{ showLegend ? 'Hide' : 'Show' }} Legend
+          </UButton>
+        </div>
+
+        <!-- Analysis Legend Accordion -->
+        <UAccordion 
+          v-if="showLegend"
+          class="mt-4"
+          :items="[
+            {
+              label: '📊 Niveles de Intensidad / Intensity Levels',
+              slot: 'intensity-levels'
+            },
+            {
+              label: '😄 Emociones / Emotions', 
+              slot: 'emotions'
+            },
+            {
+              label: '⚠️ Tipos de Ataque / Attack Types',
+              slot: 'attack-types'
+            },
+            {
+              label: '✨ Transformación / Transformation',
+              slot: 'transformation'
+            }
+          ]"
+        >
+          <template #intensity-levels>
+            <div class="space-y-2">
+              <div class="grid grid-cols-2 gap-2">
+                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-100 text-green-800 text-xs">
+                  <UIcon name="i-heroicons-chart-bar-20-solid" class="w-3 h-3" />
+                  0-2 Positivo/Positive
+                </span>
+                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-yellow-100 text-yellow-800 text-xs">
+                  <UIcon name="i-heroicons-chart-bar-20-solid" class="w-3 h-3" />
+                  3-4 Leve/Light
+                </span>
+                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-orange-100 text-orange-800 text-xs">
+                  <UIcon name="i-heroicons-chart-bar-20-solid" class="w-3 h-3" />
+                  5-6 Moderado/Moderate
+                </span>
+                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-red-100 text-red-800 text-xs">
+                  <UIcon name="i-heroicons-chart-bar-20-solid" class="w-3 h-3" />
+                  7-10 Alto/High
+                </span>
+              </div>
+            </div>
           </template>
-          
-          <div class="space-y-3 text-xs text-gray-600">
-            <!-- Intensity Levels -->
-            <div>
-              <h4 class="font-medium text-gray-700 mb-1">Niveles de Intensidad / Intensity Levels:</h4>
-              <div class="flex flex-wrap gap-2">
-                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-100 text-green-800">
-                  <UIcon name="i-heroicons-chart-bar-20-solid" class="w-3 h-3" />
-                  0-2 Positivo / Positive
-                </span>
-                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-yellow-100 text-yellow-800">
-                  <UIcon name="i-heroicons-chart-bar-20-solid" class="w-3 h-3" />
-                  3-4 Leve / Light
-                </span>
-                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-orange-100 text-orange-800">
-                  <UIcon name="i-heroicons-chart-bar-20-solid" class="w-3 h-3" />
-                  5-6 Moderado / Moderate
-                </span>
-                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-red-100 text-red-800">
-                  <UIcon name="i-heroicons-chart-bar-20-solid" class="w-3 h-3" />
-                  7-10 Alto/Muy Alto / High/Very High
-                </span>
-              </div>
-            </div>
 
-            <!-- Emotions -->
-            <div>
-              <h4 class="font-medium text-gray-700 mb-1">Emociones / Emotions:</h4>
-              <div class="flex flex-wrap gap-1 text-xs">
-                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-purple-100 text-purple-800">
-                  <UIcon name="i-heroicons-face-smile-20-solid" class="w-3 h-3" />
-                  Juguetón/Playful
-                </span>
-                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-purple-100 text-purple-800">
-                  <UIcon name="i-heroicons-fire-20-solid" class="w-3 h-3" />
-                  Frustrado/Frustrated
-                </span>
-                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-purple-100 text-purple-800">
-                  <UIcon name="i-heroicons-bolt-20-solid" class="w-3 h-3" />
-                  Enojado/Angry
-                </span>
-                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-purple-100 text-purple-800">
-                  <UIcon name="i-heroicons-face-frown-20-solid" class="w-3 h-3" />
-                  Molesto/Annoyed
-                </span>
-                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-purple-100 text-purple-800">
-                  <UIcon name="i-heroicons-question-mark-circle-20-solid" class="w-3 h-3" />
-                  Confundido/Confused
-                </span>
-              </div>
-            </div>
-
-            <!-- Attack Types -->
-            <div>
-              <h4 class="font-medium text-gray-700 mb-1">Tipos de Ataque / Attack Types:</h4>
-              <div class="flex flex-wrap gap-1 text-xs">
-                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-red-100 text-red-800">
-                  <UIcon name="i-heroicons-exclamation-triangle-20-solid" class="w-3 h-3" />
-                  Personal/Character
-                </span>
-                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-red-100 text-red-800">
-                  <UIcon name="i-heroicons-exclamation-triangle-20-solid" class="w-3 h-3" />
-                  Comportamiento/Behavior
-                </span>
-                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-red-100 text-red-800">
-                  <UIcon name="i-heroicons-exclamation-triangle-20-solid" class="w-3 h-3" />
-                  Opinión/Opinion
-                </span>
-                <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-orange-100 text-orange-800">
-                  <UIcon name="i-heroicons-exclamation-triangle-20-solid" class="w-3 h-3" />
-                  Broma/Playful Teasing
-                </span>
-              </div>
-            </div>
-
-            <!-- Transformation -->
-            <div>
-              <h4 class="font-medium text-gray-700 mb-1">Transformación / Transformation:</h4>
-              <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-100 text-blue-800 text-xs">
-                <UIcon name="i-heroicons-sparkles-20-solid" class="w-3 h-3" />
-                Transformado / Transformed - El mensaje fue mejorado con CNV / Message was improved with NVC
+          <template #emotions>
+            <div class="grid grid-cols-2 gap-1">
+              <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-purple-100 text-purple-800 text-xs">
+                <UIcon name="i-heroicons-face-smile-20-solid" class="w-3 h-3" />
+                Juguetón/Playful
+              </span>
+              <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-purple-100 text-purple-800 text-xs">
+                <UIcon name="i-heroicons-fire-20-solid" class="w-3 h-3" />
+                Frustrado/Frustrated
+              </span>
+              <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-purple-100 text-purple-800 text-xs">
+                <UIcon name="i-heroicons-bolt-20-solid" class="w-3 h-3" />
+                Enojado/Angry
+              </span>
+              <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-purple-100 text-purple-800 text-xs">
+                <UIcon name="i-heroicons-face-frown-20-solid" class="w-3 h-3" />
+                Molesto/Annoyed
+              </span>
+              <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-purple-100 text-purple-800 text-xs">
+                <UIcon name="i-heroicons-question-mark-circle-20-solid" class="w-3 h-3" />
+                Confundido/Confused
               </span>
             </div>
+          </template>
 
-            <p class="text-xs text-gray-500 italic mt-2">
-              * Solo el remitente ve este análisis / Only the sender sees this analysis
-            </p>
-          </div>
-        </UCard>
+          <template #attack-types>
+            <div class="grid grid-cols-2 gap-1">
+              <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-red-100 text-red-800 text-xs">
+                <UIcon name="i-heroicons-exclamation-triangle-20-solid" class="w-3 h-3" />
+                Personal/Character
+              </span>
+              <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-red-100 text-red-800 text-xs">
+                <UIcon name="i-heroicons-exclamation-triangle-20-solid" class="w-3 h-3" />
+                Comportamiento/Behavior
+              </span>
+              <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-red-100 text-red-800 text-xs">
+                <UIcon name="i-heroicons-exclamation-triangle-20-solid" class="w-3 h-3" />
+                Opinión/Opinion
+              </span>
+              <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-orange-100 text-orange-800 text-xs">
+                <UIcon name="i-heroicons-exclamation-triangle-20-solid" class="w-3 h-3" />
+                Broma/Playful Teasing
+              </span>
+            </div>
+          </template>
+
+          <template #transformation>
+            <div class="space-y-2">
+              <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-100 text-blue-800 text-xs">
+                <UIcon name="i-heroicons-sparkles-20-solid" class="w-3 h-3" />
+                Mensaje mejorado con CNV / Message improved with NVC
+              </span>
+              <p class="text-xs text-gray-500 italic">
+                * Solo el remitente ve este análisis / Only the sender sees this analysis
+              </p>
+            </div>
+          </template>
+        </UAccordion>
       </div>
     </div>
   </div>
