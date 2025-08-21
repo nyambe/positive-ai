@@ -39,8 +39,13 @@ useHead({
     },
     {
       rel: 'icon',
-      type: 'image/x-icon',
-      href: '/favicon.ico'
+      type: 'image/svg+xml',
+      href: '/favicon.svg'
+    },
+    {
+      rel: 'icon',
+      sizes: '32x32',
+      href: '/favicon.svg'
     },
     {
       rel: 'apple-touch-icon',

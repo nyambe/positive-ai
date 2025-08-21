@@ -290,7 +290,8 @@ onUnmounted(() => {
 <template>
   <div class="min-h-screen bg-gray-50 p-4">
     <div class="max-w-2xl mx-auto">
-      <div class="flex items-center justify-center mb-8">
+      <div class="flex items-center justify-center items-center mb-8">
+        <img src="/logo.svg" alt="Chato Logo" class="w-16 h-16 mr-3" />
         <h1 class="text-3xl font-bold text-gray-800">
           Chat Positivo
         </h1>

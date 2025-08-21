@@ -15,7 +15,8 @@
       "Bash(cd:*)",
       "Bash(pkill:*)",
       "Bash(npm run dev:*)",
-      "WebFetch(domain:developers.cloudflare.com)"
+      "WebFetch(domain:developers.cloudflare.com)",
+      "Bash(rm:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
