@@ -1,10 +1,26 @@
 <script setup lang="ts">
 // Types matching your WebSocket handler
+interface Analysis {
+  sentiment_score: number
+  emotion: string
+  attack_type: string
+  communication_style: string
+}
+
+interface Transformation {
+  needed: boolean
+  original: string
+  transformed: string
+  explanation: string
+}
+
 interface Message {
   id: string
   username: string
   originalText: string
   transformedText: string
+  analysis?: Analysis
+  transformation?: Transformation
   timestamp: string
 }
 
@@ -82,6 +98,8 @@ const { send, open, close } = useWebSocket('/ws/chat', {
           username: data.username,
           originalText: data.originalText,
           transformedText: data.transformedText,
+          analysis: data.analysis,
+          transformation: data.transformation,
           timestamp: data.timestamp
         }
         
@@ -182,6 +200,19 @@ const changeName = () => {
   if (typeof window !== 'undefined') {
     localStorage.removeItem('chat-username')
   }
+}
+
+// Helper function for emotion emojis
+const getEmotionEmoji = (emotion: string): string => {
+  const emotionMap: Record<string, string> = {
+    anger: '😠',
+    frustration: '😤', 
+    disappointment: '😞',
+    hurt: '💔',
+    fear: '😨',
+    neutral: '😐'
+  }
+  return emotionMap[emotion] || '🤔'
 }
 
 // Clean up on unmount
@@ -297,6 +328,38 @@ onUnmounted(() => {
                 >
                   Original: "{{ message.originalText }}"
                 </p>
+
+                <!-- Analysis badges (only shown to sender) -->
+                <div v-if="message.username === username && message.analysis" 
+                     class="flex flex-wrap gap-1 mt-2">
+                  <!-- Sentiment Score -->
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
+                        :class="{
+                          'bg-green-100 text-green-800': message.analysis.sentiment_score <= 3,
+                          'bg-yellow-100 text-yellow-800': message.analysis.sentiment_score > 3 && message.analysis.sentiment_score <= 6,
+                          'bg-orange-100 text-orange-800': message.analysis.sentiment_score > 6 && message.analysis.sentiment_score <= 8,
+                          'bg-red-100 text-red-800': message.analysis.sentiment_score > 8
+                        }">
+                    📊 {{ message.analysis.sentiment_score }}/10
+                  </span>
+
+                  <!-- Emotion -->
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                    {{ getEmotionEmoji(message.analysis.emotion) }} {{ message.analysis.emotion }}
+                  </span>
+
+                  <!-- Attack Type Warning -->
+                  <span v-if="message.analysis.attack_type !== 'none'" 
+                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                    ⚠️ {{ message.analysis.attack_type }}
+                  </span>
+
+                  <!-- Transformation Indicator -->
+                  <span v-if="message.transformation?.needed" 
+                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    ✨ transformado
+                  </span>
+                </div>
                 
                 <!-- Timestamp -->
                 <div class="text-xs mt-1"

@@ -81,37 +81,54 @@ export default defineWebSocketHandler({
                 const messages = [
                     {
                         role: 'system',
-                        content: `You are a communication assistant that helps people express themselves more constructively without changing their actual opinions.
+                        content: `You are an NVC communication analyst and transformer. Your job is to analyze outgoing messages and transform them using Nonviolent Communication principles.
 
-CRITICAL REQUIREMENTS:
-- ALWAYS respond in the SAME LANGUAGE as the input message
-- If input is in Spanish, respond in Spanish
-- If input is in English, respond in English  
-- If input is in any other language, respond in that same language
-- NEVER translate or change the language
+CRITICAL: You MUST return ONLY valid JSON, no other text or formatting.
 
-RULES:
-- NEVER change the person's opinion or sentiment
-- ONLY improve HOW they express it  
-- Remove harsh or aggressive language
-- Use respectful, constructive phrasing
-- Keep the same emotional intent and original language
-- If already respectful, return unchanged
+STEP 1 - ANALYZE the message:
+- Sentiment score: 0-10 (0=positive/neutral, 10=very aggressive)
+- Primary emotion: anger, frustration, disappointment, hurt, fear, neutral
+- Attack type: character (personal insults), behavior (actions), opinion (ideas), or none
+- Communication style: aggressive, passive-aggressive, assertive, or passive
 
-EXAMPLES:
-Spanish: "Odio la playa" → "La playa no es realmente lo mío"
-Spanish: "Eso es estúpido" → "No creo que ese enfoque funcionaría"
-Spanish: "Estás equivocado" → "Veo esto de manera diferente"
-English: "I hate the beach" → "The beach isn't really my thing"
-English: "That's stupid" → "I don't think that approach would work"
-English: "You're wrong" → "I see this differently"
+STEP 2 - TRANSFORM if needed:
+- If sentiment_score > 3: Transform using NVC principles
+- Keep same language as input (Spanish→Spanish, English→English)
+- Focus on feelings and needs, not judgments
+- Use "I" statements: "Me siento...", "Necesito...", "I feel...", "I need..."
+- Remove character attacks and blame
 
-Only return the transformed message in the SAME language, nothing else.`
+STEP 3 - RETURN only this JSON structure:
+{
+  "analysis": {
+    "sentiment_score": [0-10],
+    "emotion": "[anger|frustration|disappointment|hurt|fear|neutral]",
+    "attack_type": "[character|behavior|opinion|none]", 
+    "communication_style": "[aggressive|passive-aggressive|assertive|passive]"
+  },
+  "transformation": {
+    "needed": [true if score > 3],
+    "original": "[exact original message]",
+    "transformed": "[NVC transformation or null if not needed]",
+    "explanation": "[brief reason for transformation]"
+  }
+}
+
+NVC TRANSFORMATION PRINCIPLES:
+✓ "Eres un idiota" → "Me siento muy frustrado/a" (character attack → feeling)
+✓ "Estás equivocado" → "Veo esto de manera diferente" (judgment → observation)
+✓ "No sirves" → "Necesito más apoyo" (attack → need)
+✓ "You're stupid" → "I'm confused about this" (insult → feeling)
+✓ "You always..." → "When this happens, I feel..." (generalization → specific)
+
+Remember: User is SENDER, transform what they want to say TO others.` 
                     },
                     ...conversationHistory,
                     {
                         role: 'user',
-                        content: `Transform this message from ${data.username}: "${data.message}"`
+                        content: `${data.username} wants to send this message to others in the chat: "${data.message}"
+
+Transform it to be more respectful and constructive while keeping the same meaning.`
                     }
                 ]
 
@@ -119,22 +136,53 @@ Only return the transformed message in the SAME language, nothing else.`
                     input: messages
                 })
 
-                // Extract transformed text from OpenAI model response structure
-                const transformedText = aiResult.response || 
-                                      (aiResult.output?.[1]?.content?.[0]?.text) || 
-                                      data.message
+                // Extract JSON response from OpenAI model response structure
+                const jsonResponse = aiResult.response || 
+                                   (aiResult.output?.[1]?.content?.[0]?.text) || 
+                                   '{}'
+
+                console.log('🤖 CHAT: AI JSON response:', jsonResponse)
+
+                // Parse the JSON analysis and transformation
+                let analysisData
+                try {
+                    analysisData = JSON.parse(jsonResponse)
+                    console.log('🧠 CHAT: Analysis:', analysisData.analysis)
+                    console.log('✨ CHAT: Transformation needed:', analysisData.transformation.needed)
+                } catch (parseError) {
+                    console.error('❌ CHAT: Failed to parse AI JSON response:', parseError)
+                    // Fallback to simple transformation
+                    analysisData = {
+                        analysis: {
+                            sentiment_score: 5,
+                            emotion: 'neutral',
+                            attack_type: 'none',
+                            communication_style: 'neutral'
+                        },
+                        transformation: {
+                            needed: false,
+                            original: data.message,
+                            transformed: data.message,
+                            explanation: 'JSON parse error - using original message'
+                        }
+                    }
+                }
+
+                const transformedText = analysisData.transformation.transformed || data.message
 
                 console.log('🤖 CHAT: AI transformation complete')
                 console.log('Original:', data.message)
                 console.log('Transformed:', transformedText)
 
-                // Create the transformed message
+                // Create the transformed message with analysis
                 const chatMessage = {
                     type: 'message',
                     id: Date.now().toString(),
                     username: data.username,
                     originalText: data.message,
                     transformedText: transformedText,
+                    analysis: analysisData.analysis,  // Include the sentiment analysis
+                    transformation: analysisData.transformation,  // Include transformation details
                     timestamp: new Date().toISOString()
                 }
 
