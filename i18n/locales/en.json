@@ -1,5 +1,9 @@
 {
   "welcome": "Welcome",
+  "ui": {
+    "switchToDark": "Switch to dark mode",
+    "switchToLight": "Switch to light mode"
+  },
   "chat": {
     "title": "Positive Chat",
     "description": "A chat that transforms negative messages into constructive communication using AI and Nonviolent Communication principles.",

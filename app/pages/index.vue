@@ -2,6 +2,9 @@
 // i18n composable
 const { locales, setLocale, locale } = useI18n()
 
+// Color mode composable (built into Nuxt UI)
+const colorMode = useColorMode()
+
 // Type for locale object
 interface LocaleObject {
   code: string
@@ -312,14 +315,24 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50 p-4">
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 p-4">
     <div class="max-w-2xl mx-auto">
       <div class="flex items-center justify-center items-center mb-8">
         <img src="/logo.svg" alt="Chato Logo" class="w-16 h-16 mr-3" />
-        <h1 class="text-3xl font-bold text-gray-800">
+        <h1 class="text-3xl font-bold text-gray-800 dark:text-white">
           {{ $t('chat.title') }}
         </h1>
         <div class="ml-4 flex items-center space-x-4">
+          <!-- Dark/Light Mode Toggle -->
+          <UButton
+            :icon="colorMode.value === 'dark' ? 'i-heroicons-sun-20-solid' : 'i-heroicons-moon-20-solid'"
+            variant="ghost"
+            size="sm"
+            class="text-gray-600 dark:text-gray-300"
+            @click="colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark'"
+            :title="colorMode.value === 'dark' ? $t('ui.switchToLight') : $t('ui.switchToDark')"
+          />
+          
           <!-- Language Switcher -->
           <div class="relative">
             <UDropdownMenu :items="[[
@@ -328,7 +341,7 @@ onUnmounted(() => {
                 onSelect: () => setLocale(loc.code as 'en' | 'es' | 'fr')
               }))
             ]]">
-              <UButton variant="ghost" size="sm" class="text-gray-600">
+              <UButton variant="ghost" size="sm" class="text-gray-600 dark:text-gray-300">
                 <UIcon name="i-heroicons-language-20-solid" class="w-4 h-4 mr-1" />
                 <span class="text-xs">{{ locale.toUpperCase() }}</span>
                 <UIcon name="i-heroicons-chevron-down-20-solid" class="w-3 h-3 ml-1" />

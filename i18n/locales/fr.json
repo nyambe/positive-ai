@@ -1,5 +1,9 @@
 {
   "welcome": "Bienvenue",
+  "ui": {
+    "switchToDark": "Passer au mode sombre",
+    "switchToLight": "Passer au mode clair"
+  },
   "chat": {
     "title": "Chat Positif",
     "description": "Un chat qui transforme les messages négatifs en communication constructive en utilisant l'IA et les principes de la Communication Non Violente.",
