@@ -16,7 +16,8 @@
       "Bash(pkill:*)",
       "Bash(npm run dev:*)",
       "WebFetch(domain:developers.cloudflare.com)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "mcp__sequential-thinking__sequentialthinking"
     ]
   },
   "enableAllProjectMcpServers": true,

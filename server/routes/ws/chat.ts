@@ -119,7 +119,7 @@ STEP 3 - RETURN only this JSON:
     "communication_style": "[aggressive|passive-aggressive|assertive|passive|playful]"
   },
   "transformation": {
-    "needed": [true if score > 2],
+    "needed": [true if score > 1],
     "original": "[exact original message]",
     "transformed": "[appropriate transformation or null]",
     "explanation": "[brief reason]"
