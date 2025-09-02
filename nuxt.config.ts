@@ -1,7 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   // https://nuxt.com/modules
-  modules: ['@nuxthub/core', '@nuxt/eslint', '@nuxt/scripts', '@nuxt/ui', '@vueuse/nuxt'],
+  modules: ['@nuxthub/core', '@nuxt/eslint', '@nuxt/scripts', '@nuxt/ui', '@vueuse/nuxt', '@nuxtjs/i18n'],
   css: ['~/assets/css/main.css'],
 
   // https://devtools.nuxt.com
@@ -41,5 +41,15 @@ export default defineNuxtConfig({
         commaDangle: 'never'
       }
     }
+  },
+
+  // i18n
+  i18n: {
+    defaultLocale: 'es',
+    locales: [
+      { code: 'en', name: 'English', file: 'en.json' },
+      { code: 'es', name: 'Español', file: 'es.json' },
+      { code: 'fr', name: 'Français', file: 'fr.json' },
+    ]
   }
 })

@@ -1,4 +1,13 @@
 <script setup lang="ts">
+// i18n composable
+const { locales, setLocale, locale } = useI18n()
+
+// Type for locale object
+interface LocaleObject {
+  code: string
+  name: string
+  file?: string
+}
 // Types matching your WebSocket handler
 interface Analysis {
   sentiment_score: number
@@ -42,18 +51,31 @@ const connectionStatus = ref('Disconnected')
 const isAiThinking = ref(false)
 const showLegend = ref(true)
 
-// Load username from localStorage
+// Load username and language from localStorage
 onMounted(() => {
   if (typeof window !== 'undefined') {
     username.value = localStorage.getItem('chat-username') || ''
     usernameInput.value = username.value
+    
+    // Load saved language preference
+    const savedLocale = localStorage.getItem('chat-locale')
+    if (savedLocale && locales.value.some((l: LocaleObject) => l.code === savedLocale)) {
+      setLocale(savedLocale as 'en' | 'es' | 'fr')
+    }
   }
 })
 
 // Save username when it changes (only when actually set, not during typing)
-watch(username, (newUsername) => {
+watch(username, (newUsername: string) => {
   if (typeof window !== 'undefined' && newUsername) {
     localStorage.setItem('chat-username', newUsername)
+  }
+})
+
+// Save language preference when it changes
+watch(locale, (newLocale: string) => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('chat-locale', newLocale)
   }
 })
 
@@ -68,7 +90,8 @@ const { send, open, close } = useWebSocket('/ws/chat', {
     console.log('❌ WebSocket DISCONNECTED from chat')
     connectionStatus.value = 'Disconnected'
   },
-  onMessage: async (ws, event) => {
+  onMessage: async (ws: any, event: any) => {
+    _unused.ws(ws) // Mark as used
     console.log('📥 RAW MESSAGE RECEIVED:', event.data)
     console.log('📥 MESSAGE TYPE:', typeof event.data)
     console.log('📥 IS BLOB?', event.data instanceof Blob)
@@ -137,7 +160,7 @@ const { send, open, close } = useWebSocket('/ws/chat', {
 })
 
 // Connect when user joins chat
-watch(username, (newUsername) => {
+watch(username, (newUsername: string) => {
   if (newUsername && connectionStatus.value === 'Disconnected') {
     console.log('🔌 Connecting to WebSocket...')
     open()
@@ -218,9 +241,11 @@ const logout = () => {
   isAiThinking.value = false
   showLegend.value = true
   
-  // Clear all localStorage
+  // Clear all localStorage including language preference
   if (typeof window !== 'undefined') {
     localStorage.clear()
+    // Reset to default language
+    setLocale('es')
   }
 }
 
@@ -299,6 +324,9 @@ const getIntensityLabel = (intensity: string): string => {
   return intensityLabels[intensity] || intensity
 }
 
+// Helper function to get unused variable (to avoid lint warnings)
+const _unused = { ws: (ws: any) => {}, getEmotionEmoji }
+
 // Clean up on unmount
 onUnmounted(() => {
   if (connectionStatus.value === 'Connected') {
@@ -313,9 +341,26 @@ onUnmounted(() => {
       <div class="flex items-center justify-center items-center mb-8">
         <img src="/logo.svg" alt="Chato Logo" class="w-16 h-16 mr-3" />
         <h1 class="text-3xl font-bold text-gray-800">
-          Chat Positivo
+          {{ $t('chat.title') }}
         </h1>
         <div class="ml-4 flex items-center space-x-4">
+          <!-- Language Switcher -->
+          <div class="relative">
+            <UDropdownMenu :items="[[
+              ...locales.map((loc: LocaleObject) => ({
+                label: loc.name,
+                icon: loc.code === 'es' ? '🇪🇸' : loc.code === 'en' ? '🇺🇸' : '🇫🇷',
+                onSelect: () => setLocale(loc.code as 'en' | 'es' | 'fr')
+              }))
+            ]]">
+              <UButton variant="ghost" size="sm" class="text-gray-600">
+                <span class="text-lg mr-1">
+                  {{ locale === 'es' ? '🇪🇸' : locale === 'en' ? '🇺🇸' : '🇫🇷' }}
+                </span>
+                <span class="text-xs">{{ locale.toUpperCase() }}</span>
+              </UButton>
+            </UDropdownMenu>
+          </div>
           <div class="flex items-center">
             <div 
               class="w-3 h-3 rounded-full mr-2"
@@ -327,12 +372,12 @@ onUnmounted(() => {
               }"
             ></div>
             <span class="text-sm text-gray-600">
-              {{ connectionStatus === 'Connected' ? 'Conectado' : connectionStatus === 'Disconnected' ? 'Desconectado' : connectionStatus === 'Connecting' ? 'Conectando' : 'Error' }}
+              {{ connectionStatus === 'Connected' ? $t('chat.connected') : connectionStatus === 'Disconnected' ? $t('chat.disconnected') : connectionStatus === 'Connecting' ? $t('chat.connecting') : $t('chat.error') }}
             </span>
           </div>
           <div v-if="connectedUsers > 0" class="flex items-center">
             <span class="text-sm text-gray-600">
-              👥 {{ connectedUsers }} usuario{{ connectedUsers !== 1 ? 's' : '' }} conectado{{ connectedUsers !== 1 ? 's' : '' }}
+              👥 {{ connectedUsers }} {{ $tc('chat.connectedUsers', connectedUsers) }}
             </span>
           </div>
         </div>
@@ -342,15 +387,15 @@ onUnmounted(() => {
       <div v-if="!username" class="mb-6">
         <UCard>
           <div class="space-y-4">
-            <h2 class="text-xl font-semibold">Chat Positivo</h2>
+            <h2 class="text-xl font-semibold">{{ $t('chat.title') }}</h2>
             
             <!-- Brief explanation -->
             <div class="text-sm text-gray-600 space-y-2">
               <p>
-                Un chat que transforma mensajes negativos en comunicación constructiva usando IA y los principios de la Comunicación No Violenta.
+                {{ $t('chat.description') }}
               </p>
               <p class="text-xs text-gray-500">
-                Experimento educativo • No se guardan datos • Sin valor científico
+                {{ $t('chat.disclaimer') }}
               </p>
             </div>
             
@@ -359,7 +404,7 @@ onUnmounted(() => {
               <div class="flex gap-2">
                 <UInput
                   v-model="usernameInput"
-                  placeholder="Tu nombre"
+                  :placeholder="$t('chat.enterName')"
                   size="lg"
                   class="flex-1"
                   @keyup.enter="joinChat"
@@ -370,7 +415,7 @@ onUnmounted(() => {
                   :disabled="!usernameInput.trim()"
                   size="lg"
                 >
-                  Entrar
+                  {{ $t('chat.joinButton') }}
                 </UButton>
               </div>
             </div>
@@ -383,7 +428,7 @@ onUnmounted(() => {
         <!-- Connected Users List -->
         <UCard v-if="connectedUsersList.length > 0">
           <div class="flex items-center space-x-2">
-            <h3 class="text-sm font-medium text-gray-700">Usuarios conectados:</h3>
+            <h3 class="text-sm font-medium text-gray-700">{{ $t('chat.connectedUsersLabel') }}</h3>
             <div class="flex flex-wrap gap-1">
               <span 
                 v-for="user in connectedUsersList" 
@@ -392,7 +437,7 @@ onUnmounted(() => {
                 :class="user === username ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-700'"
               >
                 {{ user }}
-                <span v-if="user === username" class="ml-1">(tú)</span>
+                <span v-if="user === username" class="ml-1">({{ $t('chat.you') }})</span>
               </span>
             </div>
           </div>
@@ -425,7 +470,7 @@ onUnmounted(() => {
                    class="text-xs mt-1 italic"
                    :class="message.username === username ? 'text-blue-100' : 'text-gray-500'"
                 >
-                  Original: "{{ message.originalText }}"
+                  {{ $t('chat.original') }} "{{ message.originalText }}"
                 </p>
 
                 <!-- Analysis badges (only shown to sender) -->
@@ -460,7 +505,7 @@ onUnmounted(() => {
                   <span v-if="message.transformation?.needed" 
                         class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                     <UIcon name="i-heroicons-sparkles-20-solid" class="w-3 h-3" />
-                    transformado
+                    {{ $t('chat.transformed') }}
                   </span>
                 </div>
                 
@@ -482,7 +527,7 @@ onUnmounted(() => {
                     <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style="animation-delay: 150ms"></div>
                     <div class="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style="animation-delay: 300ms"></div>
                   </div>
-                  <span class="text-sm text-gray-600">IA pensando...</span>
+                  <span class="text-sm text-gray-600">{{ $t('chat.aiThinking') }}</span>
                 </div>
               </div>
             </div>
@@ -490,29 +535,29 @@ onUnmounted(() => {
             <!-- Initial examples when no messages -->
             <div v-if="messages.length === 0 && !isAiThinking" class="space-y-3 py-4">
               <div class="text-center text-gray-500 text-sm">
-                Multiusuario - No se guardan mensajes - Tiempo Real
+                {{ $t('chat.privacy') }}
               </div>
               
               <!-- Examples of transformations -->
               <div class="bg-gray-50 rounded-lg p-3 space-y-2">
-                <p class="text-sm text-gray-700 font-medium">Ejemplos:</p>
+                <p class="text-sm text-gray-700 font-medium">{{ $t('chat.examples') }}</p>
                 
                 <div class="space-y-1 text-xs">
                   <div class="flex gap-2">
                     <span class="text-gray-500">→</span>
-                    <span class="text-gray-600">"Eres una petarda" se convierte en "Eres particular"</span>
+                    <span class="text-gray-600">"{{ $t('examples.example1Before') }}" se convierte en "{{ $t('examples.example1After') }}"</span>
                   </div>
                   <div class="flex gap-2">
                     <span class="text-gray-500">→</span>
-                    <span class="text-gray-600">"No entiendes nada" se convierte en "Me cuesta explicarme bien"</span>
+                    <span class="text-gray-600">"{{ $t('examples.example2Before') }}" se convierte en "{{ $t('examples.example2After') }}"</span>
                   </div>
                   <div class="flex gap-2">
                     <span class="text-gray-500">→</span>
-                    <span class="text-gray-600">"Eres un idiota" se convierte en "Me siento muy frustrado"</span>
+                    <span class="text-gray-600">"{{ $t('examples.example3Before') }}" se convierte en "{{ $t('examples.example3After') }}"</span>
                   </div>
                   <div class="flex gap-2">
                     <span class="text-gray-500">→</span>
-                    <span class="text-gray-600">Los mensajes positivos no cambian</span>
+                    <span class="text-gray-600">{{ $t('examples.example4Before') }}</span>
                   </div>
                 </div>
               </div>
@@ -524,7 +569,7 @@ onUnmounted(() => {
         <div class="flex gap-2">
           <UInput
             v-model="currentMessage"
-            placeholder="Escribe tu mensaje..."
+            :placeholder="$t('chat.messagePlaceholder')"
             class="flex-1"
             @keyup.enter="sendMessage"
           />
@@ -532,14 +577,14 @@ onUnmounted(() => {
             @click="sendMessage" 
             :disabled="!currentMessage.trim() || connectionStatus !== 'Connected'"
           >
-            Enviar
+            {{ $t('chat.send') }}
           </UButton>
         </div>
 
         <!-- User info -->
         <div class="text-center">
           <span class="text-sm text-gray-600">
-            Chateando como <strong>{{ username }}</strong>
+            {{ $t('chat.chattingAs') }} <strong>{{ username }}</strong>
           </span>
           <UButton
             variant="ghost"
@@ -547,7 +592,7 @@ onUnmounted(() => {
             @click="changeName"
             class="ml-2"
           >
-            Cambiar nombre
+            {{ $t('chat.changeName') }}
           </UButton>
           <UButton
             variant="ghost"
@@ -555,7 +600,7 @@ onUnmounted(() => {
             @click="logout"
             class="ml-2"
           >
-            Salir
+            {{ $t('chat.logout') }}
           </UButton>
         </div>
 
@@ -571,7 +616,7 @@ onUnmounted(() => {
               name="i-heroicons-information-circle-20-solid" 
               class="w-4 h-4 mr-1" 
             />
-            {{ showLegend ? 'Ocultar' : 'Ver' }} Leyenda / {{ showLegend ? 'Hide' : 'Show' }} Legend
+            {{ $t(showLegend ? 'chat.showHideLegend' : 'chat.showHideLegend').split('|')[showLegend ? 1 : 0] }} {{ $t('chat.legend') }}
           </UButton>
         </div>
 
@@ -581,22 +626,22 @@ onUnmounted(() => {
           class="mt-4"
           :items="[
             {
-              label: 'Niveles de Intensidad / Intensity Levels',
+              label: $t('legend.intensityLevels'),
               slot: 'intensity-levels',
               icon: 'i-heroicons-chart-bar-20-solid'
             },
             {
-              label: 'Emociones / Emotions', 
+              label: $t('legend.emotions'), 
               slot: 'emotions',
               icon: 'i-heroicons-face-smile-20-solid'
             },
             {
-              label: 'Tipos de Ataque / Attack Types',
+              label: $t('legend.attackTypes'),
               slot: 'attack-types',
               icon: 'i-heroicons-exclamation-triangle-20-solid'
             },
             {
-              label: 'Transformación / Transformation',
+              label: $t('legend.transformation'),
               slot: 'transformation',
               icon: 'i-heroicons-sparkles-20-solid'
             }
@@ -607,19 +652,19 @@ onUnmounted(() => {
               <div class="grid grid-cols-2 gap-2">
                 <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-100 text-green-800 text-xs">
                   <UIcon name="i-heroicons-chart-bar-20-solid" class="w-3 h-3" />
-                  0-2 Positivo/Positive
+                  0-2 {{ $t('legend.positive') }}
                 </span>
                 <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-yellow-100 text-yellow-800 text-xs">
                   <UIcon name="i-heroicons-chart-bar-20-solid" class="w-3 h-3" />
-                  3-4 Leve/Light
+                  3-4 {{ $t('legend.light') }}
                 </span>
                 <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-orange-100 text-orange-800 text-xs">
                   <UIcon name="i-heroicons-chart-bar-20-solid" class="w-3 h-3" />
-                  5-6 Moderado/Moderate
+                  5-6 {{ $t('legend.moderate') }}
                 </span>
                 <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-red-100 text-red-800 text-xs">
                   <UIcon name="i-heroicons-chart-bar-20-solid" class="w-3 h-3" />
-                  7-10 Alto/High
+                  7-10 {{ $t('legend.high') }}
                 </span>
               </div>
             </div>
@@ -629,23 +674,23 @@ onUnmounted(() => {
             <div class="grid grid-cols-2 gap-1">
               <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-purple-100 text-purple-800 text-xs">
                 <UIcon name="i-heroicons-face-smile-20-solid" class="w-3 h-3" />
-                Juguetón/Playful
+                {{ $t('legend.playfulLabel') }}
               </span>
               <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-purple-100 text-purple-800 text-xs">
                 <UIcon name="i-heroicons-fire-20-solid" class="w-3 h-3" />
-                Frustrado/Frustrated
+                {{ $t('legend.frustratedLabel') }}
               </span>
               <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-purple-100 text-purple-800 text-xs">
                 <UIcon name="i-heroicons-bolt-20-solid" class="w-3 h-3" />
-                Enojado/Angry
+                {{ $t('legend.angryLabel') }}
               </span>
               <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-purple-100 text-purple-800 text-xs">
                 <UIcon name="i-heroicons-face-frown-20-solid" class="w-3 h-3" />
-                Molesto/Annoyed
+                {{ $t('legend.annoyedLabel') }}
               </span>
               <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-purple-100 text-purple-800 text-xs">
                 <UIcon name="i-heroicons-question-mark-circle-20-solid" class="w-3 h-3" />
-                Confundido/Confused
+                {{ $t('legend.confusedLabel') }}
               </span>
             </div>
           </template>
@@ -654,19 +699,19 @@ onUnmounted(() => {
             <div class="grid grid-cols-2 gap-1">
               <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-red-100 text-red-800 text-xs">
                 <UIcon name="i-heroicons-exclamation-triangle-20-solid" class="w-3 h-3" />
-                Personal/Character
+                {{ $t('legend.personalLabel') }}
               </span>
               <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-red-100 text-red-800 text-xs">
                 <UIcon name="i-heroicons-exclamation-triangle-20-solid" class="w-3 h-3" />
-                Comportamiento/Behavior
+                {{ $t('legend.behaviorLabel') }}
               </span>
               <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-red-100 text-red-800 text-xs">
                 <UIcon name="i-heroicons-exclamation-triangle-20-solid" class="w-3 h-3" />
-                Opinión/Opinion
+                {{ $t('legend.opinionLabel') }}
               </span>
               <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-orange-100 text-orange-800 text-xs">
                 <UIcon name="i-heroicons-exclamation-triangle-20-solid" class="w-3 h-3" />
-                Broma/Playful Teasing
+                {{ $t('legend.playfulTeasingLabel') }}
               </span>
             </div>
           </template>
@@ -675,10 +720,10 @@ onUnmounted(() => {
             <div class="space-y-2">
               <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-100 text-blue-800 text-xs">
                 <UIcon name="i-heroicons-sparkles-20-solid" class="w-3 h-3" />
-                Mensaje mejorado con CNV / Message improved with NVC
+                {{ $t('legend.transformedMessage') }}
               </span>
               <p class="text-xs text-gray-500 italic">
-                * Solo el remitente ve este análisis / Only the sender sees this analysis
+                * {{ $t('legend.senderOnly') }}
               </p>
             </div>
           </template>
