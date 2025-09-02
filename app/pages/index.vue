@@ -204,6 +204,26 @@ const changeName = () => {
   }
 }
 
+const logout = () => {
+  if (connectionStatus.value === 'Connected') {
+    close()
+  }
+  username.value = ''
+  usernameInput.value = ''
+  messages.value = []
+  connectedUsers.value = 0
+  connectedUsersList.value = []
+  connectionStatus.value = 'Disconnected'
+  currentMessage.value = ''
+  isAiThinking.value = false
+  showLegend.value = true
+  
+  // Clear all localStorage
+  if (typeof window !== 'undefined') {
+    localStorage.clear()
+  }
+}
+
 // Helper function for emotion emojis and Spanish labels
 const getEmotionEmoji = (emotion: string): string => {
   const emotionMap: Record<string, string> = {
@@ -322,23 +342,37 @@ onUnmounted(() => {
       <div v-if="!username" class="mb-6">
         <UCard>
           <div class="space-y-4">
-            <h2 class="text-xl font-semibold">Únete al chat</h2>
-            <div class="flex gap-2">
-              <UInput
-                v-model="usernameInput"
-                placeholder="Introduce tu nombre"
-                size="lg"
-                class="flex-1"
-                @keyup.enter="joinChat"
-                autofocus
-              />
-              <UButton
-                @click="joinChat"
-                :disabled="!usernameInput.trim()"
-                size="lg"
-              >
-                Unirse
-              </UButton>
+            <h2 class="text-xl font-semibold">Chat Positivo</h2>
+            
+            <!-- Brief explanation -->
+            <div class="text-sm text-gray-600 space-y-2">
+              <p>
+                Un chat que transforma mensajes negativos en comunicación constructiva usando IA y los principios de la Comunicación No Violenta.
+              </p>
+              <p class="text-xs text-gray-500">
+                Experimento educativo • No se guardan datos • Sin valor científico
+              </p>
+            </div>
+            
+            <!-- Join form -->
+            <div class="space-y-2">
+              <div class="flex gap-2">
+                <UInput
+                  v-model="usernameInput"
+                  placeholder="Tu nombre"
+                  size="lg"
+                  class="flex-1"
+                  @keyup.enter="joinChat"
+                  autofocus
+                />
+                <UButton
+                  @click="joinChat"
+                  :disabled="!usernameInput.trim()"
+                  size="lg"
+                >
+                  Entrar
+                </UButton>
+              </div>
             </div>
           </div>
         </UCard>
@@ -453,8 +487,35 @@ onUnmounted(() => {
               </div>
             </div>
             
-            <div v-if="messages.length === 0 && !isAiThinking" class="text-center text-gray-500 py-8">
-              ¡Empieza la conversación! no se guardan los mensajes!! privacidad total. Si escribes algo negativo, el chat lo transforma en algo positivo.
+            <!-- Initial examples when no messages -->
+            <div v-if="messages.length === 0 && !isAiThinking" class="space-y-3 py-4">
+              <div class="text-center text-gray-500 text-sm">
+                Multiusuario - No se guardan mensajes - Tiempo Real
+              </div>
+              
+              <!-- Examples of transformations -->
+              <div class="bg-gray-50 rounded-lg p-3 space-y-2">
+                <p class="text-sm text-gray-700 font-medium">Ejemplos:</p>
+                
+                <div class="space-y-1 text-xs">
+                  <div class="flex gap-2">
+                    <span class="text-gray-500">→</span>
+                    <span class="text-gray-600">"Eres una petarda" se convierte en "Eres particular"</span>
+                  </div>
+                  <div class="flex gap-2">
+                    <span class="text-gray-500">→</span>
+                    <span class="text-gray-600">"No entiendes nada" se convierte en "Me cuesta explicarme bien"</span>
+                  </div>
+                  <div class="flex gap-2">
+                    <span class="text-gray-500">→</span>
+                    <span class="text-gray-600">"Eres un idiota" se convierte en "Me siento muy frustrado"</span>
+                  </div>
+                  <div class="flex gap-2">
+                    <span class="text-gray-500">→</span>
+                    <span class="text-gray-600">Los mensajes positivos no cambian</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </UCard>
@@ -487,6 +548,14 @@ onUnmounted(() => {
             class="ml-2"
           >
             Cambiar nombre
+          </UButton>
+          <UButton
+            variant="ghost"
+            size="xs"
+            @click="logout"
+            class="ml-2"
+          >
+            Salir
           </UButton>
         </div>
 
