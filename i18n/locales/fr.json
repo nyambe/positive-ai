@@ -75,6 +75,7 @@
     "senderOnly": "Seul l'expéditeur voit cette analyse"
   },
   "examples": {
+    "convertsTo": "se transforme en",
     "example1Before": "Tu es agaçant",
     "example1After": "Tu es particulier",
     "example2Before": "Tu ne comprends rien",

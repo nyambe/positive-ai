@@ -75,6 +75,7 @@
     "senderOnly": "Only the sender sees this analysis"
   },
   "examples": {
+    "convertsTo": "converts to",
     "example1Before": "You're annoying",
     "example1After": "You're unique",
     "example2Before": "You don't understand anything",

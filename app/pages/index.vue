@@ -519,15 +519,15 @@ onUnmounted(() => {
                 <div class="space-y-1 text-xs">
                   <div class="flex gap-2">
                     <span class="text-gray-500">→</span>
-                    <span class="text-gray-600">"{{ $t('examples.example1Before') }}" se convierte en "{{ $t('examples.example1After') }}"</span>
+                    <span class="text-gray-600">"{{ $t('examples.example1Before') }}" {{ $t('examples.convertsTo') }} "{{ $t('examples.example1After') }}"</span>
                   </div>
                   <div class="flex gap-2">
                     <span class="text-gray-500">→</span>
-                    <span class="text-gray-600">"{{ $t('examples.example2Before') }}" se convierte en "{{ $t('examples.example2After') }}"</span>
+                    <span class="text-gray-600">"{{ $t('examples.example2Before') }}" {{ $t('examples.convertsTo') }} "{{ $t('examples.example2After') }}"</span>
                   </div>
                   <div class="flex gap-2">
                     <span class="text-gray-500">→</span>
-                    <span class="text-gray-600">"{{ $t('examples.example3Before') }}" se convierte en "{{ $t('examples.example3After') }}"</span>
+                    <span class="text-gray-600">"{{ $t('examples.example3Before') }}" {{ $t('examples.convertsTo') }} "{{ $t('examples.example3After') }}"</span>
                   </div>
                   <div class="flex gap-2">
                     <span class="text-gray-500">→</span>

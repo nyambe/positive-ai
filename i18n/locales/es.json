@@ -75,6 +75,7 @@
     "senderOnly": "Solo el remitente ve este análisis"
   },
   "examples": {
+    "convertsTo": "se convierte en",
     "example1Before": "Eres una petarda",
     "example1After": "Eres particular",
     "example2Before": "No entiendes nada",
