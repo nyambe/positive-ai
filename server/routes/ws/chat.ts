@@ -147,9 +147,19 @@ Remember: Match the transformation intensity to the original message intensity. 
                     ...conversationHistory,
                     {
                         role: 'user',
-                        content: `${data.username} wants to send this message to others in the chat: "${data.message}"
+                        content: `ANALYZE AND TRANSFORM this message: "${data.message}"
 
-Transform it to be more respectful and constructive while keeping the same meaning.`
+CRITICAL LANGUAGE RULE: 
+- The "transformed" field must be in the EXACT SAME LANGUAGE as the original message
+- DO NOT translate to any other language  
+- If original is English → transform in English
+- If original is Spanish → transform in Spanish  
+- If original is French → transform in French
+- IGNORE the user's interface language (${data.locale || 'es'}) - only look at the message language
+
+Example:
+- Original: "I think you are crazy" → Transform to: "I think you have unique perspectives" (English → English)
+- Original: "Eres un idiota" → Transform to: "Me siento frustrado contigo" (Spanish → Spanish)`
                     }
                 ]
 

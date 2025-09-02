@@ -38,6 +38,7 @@ interface OutgoingMessage {
   type: 'message'
   username: string
   message: string
+  locale?: string
   timestamp?: string
 }
 
@@ -188,6 +189,7 @@ const sendMessage = () => {
       type: 'message',
       username: username.value,
       message: currentMessage.value,
+      locale: locale.value,
       timestamp: new Date().toISOString()
     }
     
@@ -283,45 +285,19 @@ const getEmotionIcon = (emotion: string): string => {
   return emotionIconMap[emotion] || 'i-heroicons-question-mark-circle-20-solid'
 }
 
-// Spanish translations for emotions
+// Translations for emotions using i18n
 const getEmotionLabel = (emotion: string): string => {
-  const emotionLabels: Record<string, string> = {
-    playful: 'juguetón',
-    confused: 'confundido',
-    annoyed: 'molesto',
-    frustrated: 'frustrado',
-    disappointed: 'decepcionado',
-    angry: 'enojado',
-    hurt: 'herido',
-    fear: 'temeroso',
-    surprised: 'sorprendido',
-    neutral: 'neutral'
-  }
-  return emotionLabels[emotion] || emotion
+  return $t(`emotions.${emotion}`) || emotion
 }
 
-// Spanish translations for attack types
+// Translations for attack types using i18n
 const getAttackTypeLabel = (attackType: string): string => {
-  const attackLabels: Record<string, string> = {
-    character: 'personal',
-    behavior: 'comportamiento',
-    opinion: 'opinión',
-    'playful-teasing': 'broma',
-    none: 'ninguno'
-  }
-  return attackLabels[attackType] || attackType
+  return $t(`attacks.${attackType}`) || attackType
 }
 
-// Spanish translations for intensity levels
+// Translations for intensity levels using i18n
 const getIntensityLabel = (intensity: string): string => {
-  const intensityLabels: Record<string, string> = {
-    'positivo': 'positivo',
-    'leve': 'leve',
-    'moderado': 'moderado',
-    'alto': 'alto',
-    'muy-alto': 'muy alto'
-  }
-  return intensityLabels[intensity] || intensity
+  return $t(`intensity.${intensity}`) || intensity
 }
 
 // Helper function to get unused variable (to avoid lint warnings)
@@ -349,15 +325,13 @@ onUnmounted(() => {
             <UDropdownMenu :items="[[
               ...locales.map((loc: LocaleObject) => ({
                 label: loc.name,
-                icon: loc.code === 'es' ? '🇪🇸' : loc.code === 'en' ? '🇺🇸' : '🇫🇷',
                 onSelect: () => setLocale(loc.code as 'en' | 'es' | 'fr')
               }))
             ]]">
               <UButton variant="ghost" size="sm" class="text-gray-600">
-                <span class="text-lg mr-1">
-                  {{ locale === 'es' ? '🇪🇸' : locale === 'en' ? '🇺🇸' : '🇫🇷' }}
-                </span>
+                <UIcon name="i-heroicons-language-20-solid" class="w-4 h-4 mr-1" />
                 <span class="text-xs">{{ locale.toUpperCase() }}</span>
+                <UIcon name="i-heroicons-chevron-down-20-solid" class="w-3 h-3 ml-1" />
               </UButton>
             </UDropdownMenu>
           </div>
