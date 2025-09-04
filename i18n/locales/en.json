@@ -88,5 +88,16 @@
     "example3After": "I'm feeling very frustrated",
     "example4Before": "Positive messages don't change",
     "example4After": "Positive messages don't change"
+  },
+  "meta": {
+    "title": "Chato - Positive AI-Powered Chat",
+    "description": "Real-time chat that transforms negative messages into positive communication using AI. Based on Nonviolent Communication (NVC) to create more constructive conversations.",
+    "keywords": "positive chat, AI, nonviolent communication, NVC, real-time chat, message transformation, artificial intelligence, constructive conversation",
+    "ogTitle": "Chato - Positive AI-Powered Chat",
+    "ogDescription": "Automatically transforms negative messages into positive communication using Artificial Intelligence and Nonviolent Communication principles.",
+    "twitterTitle": "Chato - Positive AI-Powered Chat",
+    "twitterDescription": "Real-time chat that transforms negative messages into positive communication using AI and NVC principles.",
+    "appName": "Chato - Positive Chat",
+    "appDescription": "Real-time chat that transforms negative messages into positive communication using AI"
   }
 }

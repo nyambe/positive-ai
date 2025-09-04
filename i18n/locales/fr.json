@@ -88,5 +88,16 @@
     "example3After": "Je me sens très frustré",
     "example4Before": "Les messages positifs ne changent pas",
     "example4After": "Les messages positifs ne changent pas"
+  },
+  "meta": {
+    "title": "Chato - Chat Positif alimenté par IA",
+    "description": "Chat en temps réel qui transforme les messages négatifs en communication positive en utilisant l'IA. Basé sur la Communication Non Violente (CNV) pour créer des conversations plus constructives.",
+    "keywords": "chat positif, IA, communication non violente, CNV, chat temps réel, transformation messages, intelligence artificielle, conversation constructive",
+    "ogTitle": "Chato - Chat Positif alimenté par IA",
+    "ogDescription": "Transforme automatiquement les messages négatifs en communication positive en utilisant l'Intelligence Artificielle et les principes de la Communication Non Violente.",
+    "twitterTitle": "Chato - Chat Positif alimenté par IA",
+    "twitterDescription": "Chat en temps réel qui transforme les messages négatifs en communication positive en utilisant l'IA et les principes CNV.",
+    "appName": "Chato - Chat Positif",
+    "appDescription": "Chat en temps réel qui transforme les messages négatifs en communication positive en utilisant l'IA"
   }
 }

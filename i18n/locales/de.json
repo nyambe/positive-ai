@@ -88,5 +88,16 @@
     "example3After": "Ich bin sehr frustriert",
     "example4Before": "Positive Nachrichten ändern sich nicht",
     "example4After": "Positive Nachrichten ändern sich nicht"
+  },
+  "meta": {
+    "title": "Chato - Positiver KI-Chat",
+    "description": "Echtzeit-Chat, der negative Nachrichten mit KI in positive Kommunikation verwandelt. Basiert auf Gewaltfreier Kommunikation (GFK) für konstruktivere Gespräche.",
+    "keywords": "positiver Chat, KI, gewaltfreie Kommunikation, GFK, Echtzeit-Chat, Nachrichtentransformation, künstliche Intelligenz, konstruktives Gespräch",
+    "ogTitle": "Chato - Positiver KI-Chat",
+    "ogDescription": "Verwandelt automatisch negative Nachrichten in positive Kommunikation mit Künstlicher Intelligenz und Prinzipien der Gewaltfreien Kommunikation.",
+    "twitterTitle": "Chato - Positiver KI-Chat",
+    "twitterDescription": "Echtzeit-Chat, der negative Nachrichten mit KI und GFK-Prinzipien in positive Kommunikation verwandelt.",
+    "appName": "Chato - Positiver Chat",
+    "appDescription": "Echtzeit-Chat, der negative Nachrichten mit KI in positive Kommunikation verwandelt"
   }
 }

@@ -88,5 +88,16 @@
     "example3After": "Me siento muy frustrado",
     "example4Before": "Los mensajes positivos no cambian",
     "example4After": "Los mensajes positivos no cambian"
+  },
+  "meta": {
+    "title": "Chato - Chat Positivo con IA",
+    "description": "Chat en tiempo real que transforma mensajes negativos en comunicación positiva usando IA. Basado en Comunicación No Violenta (CNV) para crear conversaciones más constructivas.",
+    "keywords": "chat positivo, IA, comunicación no violenta, CNV, chat tiempo real, transformación mensajes, inteligencia artificial, conversación constructiva",
+    "ogTitle": "Chato - Chat Positivo con IA",
+    "ogDescription": "Transforma automáticamente mensajes negativos en comunicación positiva usando Inteligencia Artificial y principios de Comunicación No Violenta.",
+    "twitterTitle": "Chato - Chat Positivo con IA",
+    "twitterDescription": "Chat en tiempo real que transforma mensajes negativos en comunicación positiva usando IA y principios de CNV.",
+    "appName": "Chato - Chat Positivo",
+    "appDescription": "Chat en tiempo real que transforma mensajes negativos en comunicación positiva usando IA"
   }
 }

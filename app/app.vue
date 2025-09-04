@@ -1,25 +1,39 @@
 <script setup lang="ts">
-// SEO Configuration for Chato app
+// i18n composable for reactive metadata
+const { t, locale } = useI18n()
+
+// Helper function to get locale for Open Graph
+const getOgLocale = (currentLocale: string): string => {
+  const localeMap: Record<string, string> = {
+    'en': 'en_US',
+    'es': 'es_ES', 
+    'fr': 'fr_FR',
+    'de': 'de_DE'
+  }
+  return localeMap[currentLocale] || 'en_US'
+}
+
+// Reactive SEO Configuration for Chato app
 useSeoMeta({
-  title: 'Chato - Chat Positivo con IA | Positive AI-Powered Chat',
-  description: 'Chat en tiempo real que transforma mensajes negativos en comunicación positiva usando IA. Basado en Comunicación No Violenta (CNV) para crear conversaciones más constructivas.',
-  keywords: 'chat positivo, IA, comunicación no violenta, CNV, chat tiempo real, transformación mensajes, inteligencia artificial, conversación constructiva',
+  title: () => t('meta.title'),
+  description: () => t('meta.description'),
+  keywords: () => t('meta.keywords'),
   robots: 'index, follow',
   author: 'Chato Team',
   
   // Open Graph / Facebook
-  ogTitle: 'Chato - Chat Positivo con IA',
-  ogDescription: 'Transforma automáticamente mensajes negativos en comunicación positiva usando Inteligencia Artificial y principios de Comunicación No Violenta.',
+  ogTitle: () => t('meta.ogTitle'),
+  ogDescription: () => t('meta.ogDescription'),
   ogType: 'website',
   ogUrl: 'https://chato.samuel-ebuka.workers.dev',
   ogImage: '/logo.svg',
   ogSiteName: 'Chato',
-  ogLocale: 'es_ES',
+  ogLocale: () => getOgLocale(locale.value),
   
   // Twitter Card
   twitterCard: 'summary_large_image',
-  twitterTitle: 'Chato - Chat Positivo con IA',
-  twitterDescription: 'Chat en tiempo real que transforma mensajes negativos en comunicación positiva usando IA y principios de CNV.',
+  twitterTitle: () => t('meta.twitterTitle'),
+  twitterDescription: () => t('meta.twitterDescription'),
   twitterImage: '/logo.svg',
   twitterSite: '@chatoapp',
   
@@ -30,7 +44,7 @@ useSeoMeta({
 
 useHead({
   htmlAttrs: {
-    lang: 'es'
+    lang: () => locale.value
   },
   link: [
     {
@@ -55,15 +69,15 @@ useHead({
   script: [
     {
       type: 'application/ld+json',
-      innerHTML: JSON.stringify({
+      innerHTML: () => JSON.stringify({
         '@context': 'https://schema.org',
         '@type': 'WebApplication',
-        name: 'Chato - Chat Positivo',
-        description: 'Chat en tiempo real que transforma mensajes negativos en comunicación positiva usando IA',
+        name: t('meta.appName'),
+        description: t('meta.appDescription'),
         url: 'https://chato.samuel-ebuka.workers.dev',
         applicationCategory: 'CommunicationApplication',
         operatingSystem: 'Web',
-        inLanguage: ['es-ES', 'en-US'],
+        inLanguage: ['es-ES', 'en-US', 'fr-FR', 'de-DE'],
         offers: {
           '@type': 'Offer',
           price: '0',

@@ -64,7 +64,7 @@ onMounted(() => {
     // Load saved language preference
     const savedLocale = localStorage.getItem('chat-locale')
     if (savedLocale && locales.value.some((l: LocaleObject) => l.code === savedLocale)) {
-      setLocale(savedLocale as 'en' | 'es' | 'fr')
+      setLocale(savedLocale as 'en' | 'es' | 'fr' | 'de')
     }
   }
 })
@@ -338,7 +338,7 @@ onUnmounted(() => {
             <UDropdownMenu :items="[[
               ...locales.map((loc: LocaleObject) => ({
                 label: loc.name,
-                onSelect: () => setLocale(loc.code as 'en' | 'es' | 'fr')
+                onSelect: () => setLocale(loc.code as 'en' | 'es' | 'fr' | 'de')
               }))
             ]]">
               <UButton variant="ghost" size="sm" class="text-gray-600 dark:text-gray-300">
