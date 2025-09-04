@@ -1,0 +1,92 @@
+{
+  "welcome": "Willkommen",
+  "ui": {
+    "switchToDark": "Zu dunklem Modus wechseln",
+    "switchToLight": "Zu hellem Modus wechseln"
+  },
+  "chat": {
+    "title": "Positiver Chat",
+    "description": "Ein Chat, der negative Nachrichten in konstruktive Kommunikation verwandelt, mit KI und den Prinzipien der Gewaltfreien Kommunikation.",
+    "disclaimer": "Lernexperiment • Keine Daten gespeichert • Kein wissenschaftlicher Wert",
+    "enterName": "Ihr Name",
+    "joinButton": "Betreten",
+    "connected": "Verbunden",
+    "disconnected": "Getrennt",
+    "connecting": "Verbindung wird hergestellt",
+    "error": "Fehler",
+    "users": "Benutzer|Benutzer",
+    "connectedUsers": "verbundener Benutzer|verbundene Benutzer",
+    "messagePlaceholder": "Geben Sie Ihre Nachricht ein...",
+    "send": "Senden",
+    "aiThinking": "KI denkt nach...",
+    "changeName": "Name ändern",
+    "logout": "Abmelden",
+    "examples": "Beispiele:",
+    "privacy": "Mehrbenutzer - Keine Nachrichten gespeichert - Echtzeit",
+    "chattingAs": "Chatten als",
+    "connectedUsersLabel": "Verbundene Benutzer:",
+    "you": "Sie",
+    "original": "Original:",
+    "transformed": "transformiert",
+    "showHideLegend": "Anzeigen|Verbergen",
+    "legend": "Legende"
+  },
+  "emotions": {
+    "playful": "verspielt",
+    "confused": "verwirrt",
+    "annoyed": "verärgert",
+    "frustrated": "frustriert",
+    "disappointed": "enttäuscht",
+    "angry": "wütend",
+    "hurt": "verletzt",
+    "fear": "ängstlich",
+    "surprised": "überrascht",
+    "neutral": "neutral"
+  },
+  "attacks": {
+    "character": "persönlich",
+    "behavior": "Verhalten",
+    "opinion": "Meinung",
+    "playful-teasing": "spielerisches Necken",
+    "none": "keine"
+  },
+  "intensity": {
+    "positivo": "positiv",
+    "leve": "leicht",
+    "moderado": "mäßig",
+    "alto": "hoch",
+    "muy-alto": "sehr hoch"
+  },
+  "legend": {
+    "intensityLevels": "Intensitätsstufen",
+    "emotions": "Emotionen",
+    "attackTypes": "Angriffsarten",
+    "transformation": "Transformation",
+    "positive": "Positiv",
+    "light": "Leicht",
+    "moderate": "Mäßig",
+    "high": "Hoch",
+    "playfulLabel": "Verspielt",
+    "frustratedLabel": "Frustriert",
+    "angryLabel": "Wütend",
+    "annoyedLabel": "Verärgert",
+    "confusedLabel": "Verwirrt",
+    "personalLabel": "Persönlich",
+    "behaviorLabel": "Verhalten",
+    "opinionLabel": "Meinung",
+    "playfulTeasingLabel": "Spielerisches Necken",
+    "transformedMessage": "Nachricht verbessert mit GFK",
+    "senderOnly": "Nur der Absender sieht diese Analyse"
+  },
+  "examples": {
+    "convertsTo": "wird zu",
+    "example1Before": "Du nervst",
+    "example1After": "Du bist besonders",
+    "example2Before": "Du verstehst gar nichts",
+    "example2After": "Mir fällt es schwer, mich zu erklären",
+    "example3Before": "Du bist ein Idiot",
+    "example3After": "Ich bin sehr frustriert",
+    "example4Before": "Positive Nachrichten ändern sich nicht",
+    "example4After": "Positive Nachrichten ändern sich nicht"
+  }
+}
